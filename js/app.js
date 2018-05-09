@@ -61,6 +61,13 @@ var vm = new Vue({
 		  	} 
 		} 
 	},
+	filters: {
+	  truncate: function (value, length) {
+	    if (!value) return '';
+	    if (value.length <= length) return value;
+	    return value.substring(0, length) + " [...]";
+	  }
+	},
 	methods: {
 		logout: function() {
 			sc2.revokeToken(function(err, result) {
