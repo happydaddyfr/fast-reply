@@ -90,6 +90,13 @@ var vm = new Vue({
 				'</p>';
 			$('.message .content').html(msg_body);
 		},
+		formatDate: function(date) {
+	      // Format date from UTC to locale Date
+	      return new Date(Date.parse(date)).toLocaleDateString();
+    	},
+    	profile: function(name) {
+    	  return "https://www.steemit.com/@" + name;
+    	},
 		showUser: function() {
 		  console.log(this.username);
 		},
@@ -117,6 +124,8 @@ var vm = new Vue({
 						snippet: comments[i].body,
 						fullMail: null,
 						email: null,
+						articleTitle: comments[i].rootTitle,
+						created: this.formatDate(comments[i].created),
 						url : "https://www.steemit.com" + comments[i].url
 					};
 				}
