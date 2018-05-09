@@ -124,6 +124,8 @@ var vm = new Vue({
 						snippet: comments[i].body,
 						fullMail: null,
 						email: null,
+						payout: comments[i].payout,
+						reputation: comments[i].reputation,
 						articleTitle: comments[i].rootTitle,
 						created: this.formatDate(comments[i].created),
 						url : "https://www.steemit.com" + comments[i].url
