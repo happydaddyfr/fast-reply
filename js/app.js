@@ -121,10 +121,10 @@ var vm = new Vue({
 				}
 			});
 		},
-		showMessage: function(msg, index) {
+		showMessage: function(msg) {
 			$('#message-pane').removeClass('is-hidden');
 			$('.card').removeClass('active');
-			$('#msg-card-' + index).addClass('active');
+			$('#msg-card-' + msg.id).addClass('active');
 			$('.message .avatar img').attr("src", "http://img.busy.org/@" + msg.from);
 			$('.message .address .name').text("@" + msg.from);
 			$('.message .address .email').text(this.profile(msg.from));
@@ -194,13 +194,15 @@ var vm = new Vue({
 				let comment = this.comments[i];
 				if (this.filter == null || this.filter == comment.rootTitle) {
 					data[pos++] = {
+						id: comment.id,
 						from: comment.author,
 						reputation: comment.reputation,
 						timestamp: comment.created,
 						subject: comment.rootTitle,
 						content: comment.body,
 						payout: comment.payout,
-						url : comment.url
+						url : comment.url,
+						permlink: comment.permlink
 					};
 
 					if (data.length >= 10) {
@@ -212,7 +214,7 @@ var vm = new Vue({
 
 			this.messages = data;
 			if (data.length > 0) {
-				this.showMessage(data[0], 0);
+				this.showMessage(data[0]);
 			} else {
 				console.log("No comments found for " + this.filter);
 			}
