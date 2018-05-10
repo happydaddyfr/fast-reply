@@ -195,7 +195,8 @@ html,body {
   padding: 0 20px;
 }
 .avatar img {
-  width: 80px;
+  max-width: 120px;
+  max-height: 80px;
   border-radius: 50px;
   border: 2px solid #999;
   padding: 2px;
