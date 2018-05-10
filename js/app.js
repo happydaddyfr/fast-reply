@@ -129,6 +129,7 @@ var vm = new Vue({
 			var url = "http://api.comprendre-steem.fr/getComments?username=roxane&test=" + name;  // TODO: remove 'roxane&test=' to use logged user
 			console.log("refreshing " + url);
 
+			// VueJS Ressources plugin: https://github.com/pagekit/vue-resource
 			this.$http.get(url).then(response => {
 				// empty the current inbox
 				this.messages = {};
