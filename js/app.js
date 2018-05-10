@@ -143,8 +143,6 @@ var vm = new Vue({
 			$('.card').removeClass('active');
 			$('#msg-card-' + msg.id).addClass('active');
 			$('.message .avatar img').attr("src", "http://img.busy.org/@" + msg.from);
-			$('.message .address .name').text("@" + msg.from);
-			$('.message .address .email').text(this.profile(msg.from));
 			$('.message .subject').text(msg.subject);
 			var msg_body = '<p>' +
 				this.$options.filters.markdownToHTML(msg.content) +
@@ -157,6 +155,7 @@ var vm = new Vue({
 			let ignore = $("#ignore")[0];
 			ignore.dataset.commentid = msg.id;
 			
+			this.selectedComment = msg;
 			this.vote = $.cookie("vote%");
 		},
 		formatDate: function(date) {
@@ -268,13 +267,15 @@ var vm = new Vue({
 
 			if (this.messages.length > 0) {
 				this.showMessage(this.messages[0]);
-				this.selectedComment = this.messages[0];
 			} else {
 				console.log("No comments found for " + this.filter.title);
 				this.selectedComment = null;
 			}
 			
 		},
+
+		/// IGNORE LIST HELPERS
+
 		removeComment: function(id) {
 			// Find comment based on id and remove it from the list
 			for (var i = 0; i < this.comments.length; i++) {
@@ -318,6 +319,7 @@ var vm = new Vue({
 		clearIgnoreList: function() {
 			this.ignore = emptyIgnoreList();
 			this.saveIgnoreList();
+			this.reload();
 		},
 		addCommentToIgnore: function(id) {
 			if (this.removeComment(id)) {
@@ -344,6 +346,45 @@ var vm = new Vue({
 			} else {
 				console.log('No selected comment');
 			}
-		}
+		},
+
+		// STEEM CONNECT HELPERS 
+
+	    followAccount: function(username) {
+	      app = this
+	      sc2.follow(this.steemconnect.user.name, username, function (err, res) {
+	        if (!err) {
+	          app.createDialog("is-success", "You successfully followed @" + username, 2000)
+	          console.log(app.dialog.data, err, res);
+	        } else {
+	          console.log(err);
+	          app.createDialog("is-danger", err, 5000)
+	        }
+	      });
+	    },
+	    unfollowAccount: function(username) {
+	      app = this
+	      sc2.unfollow(this.steemconnect.user.name, username, function (err, res) {
+	        if (!err) {
+	          app.createDialog("is-warning", "You successfully unfollowed @" + username, 2000)
+	          console.log(app.dialog.data, err, res);
+	        } else {
+	          console.log(err);
+	          app.createDialog("is-danger", err, 5000)
+	        }
+	      });
+	    },
+	    ignoreAccount: function(username) {
+	      app = this
+	      sc2.ignore(this.steemconnect.user.name, username, function (err, res) {
+	        if (!err) {
+	          app.createDialog("is-warning", "You successfully ignored @" + username, 2000)
+	          console.log(app.dialog.data, err, res);
+	        } else {
+	          console.log(err);
+	          app.createDialog("is-danger", err, 5000)
+	        }
+	      });
+	    }
 	}
 });

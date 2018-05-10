@@ -65,15 +65,15 @@
                                 <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter.title | trunctate(50) }}</em></span> 
                             </a>
                             <div class="navbar-dropdown">
-                                <a class="navbar-item" id="filter-article-all" @click="changeFilter(null,null)">All articles</a>
-                                <a v-for="article in articles" class="navbar-item" v-bind:id="'filter-article-'+article.id" @click="changeFilter(article.id, article.title)">
+                                <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
+                                <a v-for="article in articles" class="navbar-item" v-bind:id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
                                     {{ article.title | truncate(50) }}
                                 </a>
                             </div>
                         </div>                        
                     </div>
                     <div class="navbar-end">
-                        <a class="navbar-item" @click="reload">
+                        <a class="navbar-item" @click.prevent="reload">
                             <span><i class="fa fa-refresh"></i> Reload</span>
                         </a>
                         <div class="navbar-item has-dropdown is-hoverable">
@@ -83,9 +83,9 @@
                             <div class="navbar-dropdown">
                                 <a href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
                                 <a :href="profile(username)" class="navbar-item">Steemit Profile</a>
-                                <a class="navbar-item">Settings</a>
+                                <a class="navbar-item" @click.prevent="clearIgnoreList">Clear ignore list</a>
                                 <hr class="navbar-divider">
-                                <a @click="logout" href="#" class="navbar-item">Logout</a>
+                                <a @click.prevent="logout" href="#" class="navbar-item">Logout</a>
                             </div>
                         </div>                        
                     </div>
@@ -93,33 +93,12 @@
             </nav>
             <div class="columns" id="mail-app">
                 <div class="column is-4 messages hero is-fullheight" id="message-feed">
-                    <!--div class="action-buttons">
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-chevron-down"></i></a>
-                            <a class="button is-small"><i class="fa fa-refresh"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-inbox"></i></a>
-                            <a class="button is-small"><i class="fa fa-exclamation-circle"></i></a>
-                            <a class="button is-small"><i class="fa fa-trash-o"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-folder"></i></a>
-                            <a class="button is-small"><i class="fa fa-tag"></i></a>
-                        </div>
-                        <div class="control is-grouped pg">
-                            <div class="title">{{ paginate.pointer.start }}-{{ paginate.pointer.end }} of {{ paginate.total }}</div>
-                            <a class="button is-link"><i class="fa fa-chevron-left"></i></a>
-                            <a class="button is-link"><i class="fa fa-chevron-right"></i></a>
-                        </div>
-                    </div-->
- 
                     <div class="inbox-messages" id="inbox-messages">
                        <div v-if="dialog != null" class="notification" :class="dialog.type">
-                          <button class="delete" @click="deleteDialog"></button>
+                          <button class="delete" @click.prevent="deleteDialog"></button>
                           {{ dialog.data }}
                         </div>
-                        <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click="showMessage(msg)" :data-preview-id="msg.id">
+                        <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click.prevent="showMessage(msg)" :data-preview-id="msg.id">
                             <div class="card-content" :class="[msg.reputation < 25 ? 'low-reputation': '']">
                                 <div class="msg-header">
                                     
@@ -150,29 +129,26 @@
                 </div>
               
                 <div class="column is-8 message hero is-fullheight" id="message-pane" v-show="hasComments">
-                    <!--div class="action-buttons">
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-inbox"></i></a>
-                            <a class="button is-small"><i class="fa fa-exclamation-circle"></i></a>
-                            <a class="button is-small"><i class="fa fa-trash-o"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-exclamation-circle"></i></a>
-                            <a class="button is-small"><i class="fa fa-trash-o"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-folder"></i></a>
-                            <a class="button is-small"><i class="fa fa-tag"></i></a>
-                        </div>
-                    </div-->
                     <div class="box message-preview">
                         <div class="top">
                             <div class="avatar">
                                 <img src="https://placehold.it/128x128">
                             </div>
                             <div class="address">
-                                <div class="name">John Smith</div>
-                                <div class="email">someone@gmail.com</div>
+                                <div class="name">
+                                    <a :href="'https://www.steemit.com/@' + (selectedComment ? selectedComment.from : 'fast-reply')">
+                                        @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                    </a>
+                                </div>
+                                <button @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
+                                    Follow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                </button>
+                                <button @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
+                                    Unfollow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                </button>
+                                <button @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
+                                    Ignore @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                </button>
                             </div>
                             <div>
                                 <strong><span class="subject"></span></strong>
@@ -186,7 +162,7 @@
                         <div class="field">
                           <label class="label">Your Vote ({{ vote }}%)</label>
                           <div class="control">
-                            <input id="vote-slider" class="slider is-fullwidth is-info is-large" step="1" min="0" max="100" :value="vote" @change="changeVote" type="range">
+                            <input id="vote-slider" class="slider is-fullwidth is-info is-large" step="1" min="0" max="100" :value="vote" @change.prevent="changeVote" type="range">
                           </div>
                         </div>
 
@@ -204,7 +180,7 @@
                             <button class="button is-warning">Vote</button>
                           </div>
                           <div class="control">
-                            <button id="ignore" class="button is-text" data-commentid="" @click="ignoreComment">Ignore</button>
+                            <button id="ignore" class="button is-text" data-commentid="" @click.prevent="ignoreComment">Ignore</button>
                           </div>
                         </div>
                     </div>
