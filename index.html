@@ -138,23 +138,23 @@
                     </div>
  
                     <div class="inbox-messages" id="inbox-messages">
-                        <div v-for="(msg, index) in messages" class="card">
+                        <div v-for="(msg, index) in messages" class="card" v-bind:id="'msg-card-'+index" v-on:click="showMessage(msg,index)" v-bind:data-preview-id="index">
                             <div class="card-content">
                                 <div class="msg-header">
                                     
                                     <a target="_blank" :href="profile(msg.from)"><span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span></a>                                    
                                     
                                     <span class="msg-attachment">{{ msg.payout }} <i class="fa fa-dollar"></i></span>
-                                    <span class="msg-timestamp">{{ msg.created }}</span>
+                                    <span class="msg-timestamp">{{ formatDate(msg.timestamp) }}</span>
                                 </div>
                                 <div class="msg-subject">
-                                    <span class="msg-subject"><strong>{{ msg.articleTitle }}</strong></span>
-                                    <span class="msg-attachment"><a target="_blank" :href="msg.url"><i class="fa fa-paperclip"></i></a></span>
+                                    <span class="msg-subject"><strong>{{ msg.subject }}</strong></span>
+                                    <span class="msg-attachment"><a target="_blank" :href="steemitUrl(msg.url)"><i class="fa fa-paperclip"></i></a></span>
                                 </div>
                                 <div class="msg-snippet">
                                     <!-- Balise v-html : https://fr.vuejs.org/v2/guide/syntax.html#Interpretation-du-HTML -->
                                     <!-- Usage des filtres : https://github.com/vuejs/vue/issues/4352 -->
-                                    <p v-html="$options.filters.truncate($options.filters.markdownToHTML(msg.snippet), 250)"></p>
+                                    <p v-html="$options.filters.truncate($options.filters.markdownToHTML(msg.content), 250)"></p>
                                 </div>
                             </div>
                         </div>
@@ -185,6 +185,9 @@
                             <div class="address">
                                 <div class="name">John Smith</div>
                                 <div class="email">someone@gmail.com</div>
+                            </div>
+                            <div>
+                                <strong><span class="subject"></span></strong>
                             </div>
                             <hr>
                             <div class="content">

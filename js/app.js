@@ -105,21 +105,22 @@ var vm = new Vue({
 			$('#message-pane').removeClass('is-hidden');
 			$('.card').removeClass('active');
 			$('#msg-card-' + index).addClass('active');
-			$('.message .address .name').text(msg.from);
-			$('.message .address .email').text(msg.email);
+			$('.message .avatar img').attr("src", "http://img.busy.org/@" + msg.from);
+			$('.message .address .name').text("@" + msg.from);
+			$('.message .address .email').text(this.profile(msg.from));
+			$('.message .subject').text(msg.subject);
 			var msg_body = '<p>' +
-				msg.snippet +
-				'</p>' +
-				'<br>' +
-				'<p>' +
-				msg.fullMail +
+				this.$options.filters.markdownToHTML(msg.content) +
 				'</p>';
 			$('.message .content').html(msg_body);
 		},
 		formatDate: function(date) {
 	      // Format date from UTC to locale Date
 	      return new Date(Date.parse(date)).toLocaleDateString();
-    	}, 
+    	},
+    	steemitUrl: function(path) {
+    	  return "https://www.steemit.com" + path;
+    	},
     	profile: function(name) {
     	  // Creation d'un lien vers le profile steemit d'un utilisateur
     	  return "https://www.steemit.com/@" + name;
@@ -144,16 +145,12 @@ var vm = new Vue({
 				for (var i = 0; i < comments.length && i < 10; i++) {
 					this.messages[i] = {
 						from: comments[i].author,
-						timestamp: null,
-						subject: null,
-						snippet: comments[i].body,
-						fullMail: null,
-						email: null,
-						payout: comments[i].payout,
 						reputation: comments[i].reputation,
-						articleTitle: comments[i].rootTitle,
-						created: this.formatDate(comments[i].created),
-						url : "https://www.steemit.com" + comments[i].url
+						timestamp: comments[i].created,
+						subject: comments[i].rootTitle,
+						content: comments[i].body,
+						payout: comments[i].payout,
+						url : comments[i].url
 					};
 				}
 			})
