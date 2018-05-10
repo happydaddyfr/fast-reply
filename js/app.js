@@ -32,6 +32,12 @@ var vm = new Vue({
 	el: '#vm',
 	created() {
 	  console.log('VueJS #vm initialized');
+	  if ($.cookie("vote%") != null) {
+	  	this.vote = $.cookie("vote%");
+	  } else {
+	  	// Start with a default vote value of 100%
+	  	$.cookie("vote%", 100, { expires: 7, path: '/' });
+	  }
 	},
 	data: {
 		loginUrl: sc2.getLoginURL(),
@@ -44,7 +50,9 @@ var vm = new Vue({
 				end: 10
 			},
 			total: 100
-		}
+		},
+		// init with a default vote value of 100%
+		vote: 100
 	},
 	computed: { 
 		username() { 
@@ -115,6 +123,7 @@ var vm = new Vue({
 			$('.message .content').html(msg_body);
 			$('.message .control .reply').val('');
 			$('.message .control .reply').focus();
+			this.vote = $.cookie("vote%");
 		},
 		formatDate: function(date) {
 	      // Format date from UTC to locale Date
@@ -126,6 +135,11 @@ var vm = new Vue({
     	profile: function(name) {
     	  // Creation d'un lien vers le profile steemit d'un utilisateur
     	  return "https://www.steemit.com/@" + name;
+    	},
+    	changeVote: function() {
+    	  this.vote = $('#vote-slider')[0].value;
+    	  //console.log('Changing vote value to ' + this.vote);
+    	  $.cookie("vote%", this.vote, { expires: 7, path: '/' });
     	},
 		reload: function(name) {
 
