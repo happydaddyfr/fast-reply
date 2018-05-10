@@ -45,14 +45,14 @@ var vm = new Vue({
 			metadata: null,
 			profile_image: null
 		},
-		messages: null,
-		comments: null,
-		articles: null,
-		filter: {
+		messages: null,	// All comments currently shown by the app
+		comments: null, // All raw comments
+		articles: null, // List of all the filters for articles
+		filter: {		// Selected filter
 			id: null,
 			title: null
 		},
-		paginate: {
+		paginate: {		// TODO: Pagination state
 			pointer: {
 				start: 1,
 				end: 10
@@ -60,7 +60,8 @@ var vm = new Vue({
 			total: 0
 		},
 		// init with a default vote value of 100%
-		vote: 100
+		vote: 100,		// Default value for voting percentage
+		dialog: null	// Message for the user
 	},
 	computed: { 
 		username() { 
@@ -105,6 +106,7 @@ var vm = new Vue({
 	    return truncateOnWord(value, length) + " [...]";
 	  },
 	  markdownToHTML: function(value) {
+	  	// TODO: check if content is indeed markdown (via API)
 	  	// Transform Markdown markup into HTML
 	  	// ShowDownJS: https://github.com/showdownjs/showdown
 	  	return new showdown.Converter().makeHtml(value);
@@ -125,6 +127,7 @@ var vm = new Vue({
 			});
 		},
 		showMessage: function(msg) {
+			// TODO replace by a VueJS component ?
 			$('#message-pane').removeClass('is-hidden');
 			$('.card').removeClass('active');
 			$('#msg-card-' + msg.id).addClass('active');
@@ -162,6 +165,15 @@ var vm = new Vue({
     			title: articleTitle
     		};
     	},
+	    createDialog: function(type, data, timeout) {
+	      this.dialog = {type: type, data: data}
+	      if(typeof timeout !== "undefined") {
+	      	setTimeout(function() { vm.deleteDialog() }, 5000); 
+	      }
+	    },
+	    deleteDialog: function() {
+	      this.dialog = null
+	    },
 		reload: function() {
 			var name = this.username;
 			if (name != null) {
@@ -188,6 +200,7 @@ var vm = new Vue({
 					}
 
 					this.comments = comments;
+					this.createDialog("is-success", "Found " + comments.length + " comments on " + articlesIds.length + " articles.", 5000);
 					this.loadMessages();
 				})
 			}
