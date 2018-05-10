@@ -57,8 +57,22 @@
             <nav class="navbar has-shadow">
                 <div class="container">
                     <div class="navbar-brand">
-                        <a class="navbar-item" href="../">
-                          <img src="img/fast-reply-icon.png" alt="Waiting no more">
+                        <a class="navbar-item" href="#">
+                          <img src="img/fast-reply-icon.png" alt="Waiting no more"> Fast-Reply
+                        </a>
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">
+                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter }}</em></span> 
+                            </a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item" id="filter-article-all" @click="changeFilter(null)">All articles</a>
+                                <a v-for="(title, index) in articles" class="navbar-item" v-bind:id="'filter-article-'+index" @click="changeFilter(title)">{{ title }}</a>
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class="navbar-end">
+                        <a class="navbar-item" @click="reload">
+                            <span><i class="fa fa-refresh"></i> Reload</span>
                         </a>
                         <div class="navbar-item has-dropdown is-hoverable">
                             <a class="navbar-link">
@@ -71,18 +85,7 @@
                                 <hr class="navbar-divider">
                                 <a @click="logout" href="#" class="navbar-item">Logout</a>
                             </div>
-                        </div>
-                        <div class="navbar-item has-dropdown is-hoverable">
-                            <a class="navbar-link">
-                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter }}</em></span> 
-                            </a>
-                        <div class="navbar-dropdown">
-                                <a v-for="(title, index) in articles" class="navbar-item" v-bind:id="'filter-article-'+index" v-on:click="filter(title, index)">{{ title }}</a>
-                            </div>
-                        </div>
-                        <a class="navbar-item" @click="reload">
-                            <span><i class="fa fa-refresh"></i> Reload</span>
-                        </a>
+                        </div>                        
                     </div>
                 </div>
             </nav>
@@ -114,7 +117,9 @@
                             <div class="card-content">
                                 <div class="msg-header">
                                     
-                                    <a target="_blank" :href="profile(msg.from)"><span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span></a>                                    
+                                    <a target="_blank" :href="profile(msg.from)">
+                                        <span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span>
+                                    </a>                                    
                                     
                                     <span class="msg-attachment">{{ msg.payout }} <i class="fa fa-dollar"></i></span>
                                     <span class="msg-timestamp">{{ formatDate(msg.timestamp) }}</span>
@@ -128,6 +133,11 @@
                                     <!-- Usage des filtres : https://github.com/vuejs/vue/issues/4352 -->
                                     <p v-html="$options.filters.truncate($options.filters.markdownToHTML(msg.content), 250)"></p>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card-content" v-show="hasComments">
+                            <div class="msg-subject">
+                                <span class="msg-subject"><strong>No comments</strong></span>
                             </div>
                         </div>
                     </div>

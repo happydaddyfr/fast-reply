@@ -65,14 +65,21 @@ var vm = new Vue({
 				return this.steemconnect.user.name; 
 		  	} 
 		  	return null; 
-		} 
+		},
+    	hasComments() {
+    		return (this.messages == null || this.messages.length == 0);
+    	}
 	}, 
 	watch: { 
 		username(newUsername, oldUsername) { 
 			if (newUsername != null && newUsername != oldUsername) { 
 				this.reload(); 
 		  	} 
-		} 
+		},
+		filter(newFilter, oldFilter) {
+			console.log("New filter selected: " + newFilter);
+			this.loadMessages();
+		}
 	},
 	filters: {  // https://vuejs.org/v2/guide/filters.html
 	  truncate: function (value, length) {
@@ -146,6 +153,9 @@ var vm = new Vue({
     	  //console.log('Changing vote value to ' + this.vote);
     	  $.cookie("vote%", this.vote, { expires: 7, path: '/' });
     	},
+    	changeFilter: function(articleTitle) {
+    		this.filter = articleTitle;
+    	},
 		reload: function() {
 			var name = this.username;
 			if (name != null) {
@@ -171,17 +181,19 @@ var vm = new Vue({
 		},
 		loadMessages: function() {
 			// empty the current inbox
-			this.messages = [];
+			let data = [];
 
 			// TODO adapt pagination values
 			this.paginate = {};
 
 			// reload inbox with the new data
+
+			let pos = 0;
 			for (var i = 0; i < this.comments.length; i++) {
 
 				let comment = this.comments[i];
 				if (this.filter == null || this.filter == comment.rootTitle) {
-					this.messages[i] = {
+					data[pos++] = {
 						from: comment.author,
 						reputation: comment.reputation,
 						timestamp: comment.created,
@@ -191,12 +203,20 @@ var vm = new Vue({
 						url : comment.url
 					};
 
-					if (this.messages.length >= 10) {
+					if (data.length >= 10) {
 						// TODO: Only keep 10 most recent comments until pagination is ready
 						break;
 					}
 				}
 			}
+
+			this.messages = data;
+			if (data.length > 0) {
+				this.showMessage(data[0], 0);
+			} else {
+				console.log("No comments found for " + this.filter);
+			}
+			
 		}
 	}
 });
