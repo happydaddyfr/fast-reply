@@ -271,13 +271,20 @@ var vm = new Vue({
 			// Find comment based on id and remove it from the list
 			for (var i = 0; i < this.comments.length; i++) {
 				if (this.comments[i].id == id) {
+					// Find the right index and remove it
 					this.comments.splice(i, 1);
-					//this.createDialog("is-success", "Comments removed.", 2000);
-					this.loadMessages();
 					return true;
 				}
 			}
-
+			return false;
+		},
+		removeCommentsFromUser: function(username) {
+			for (var i = 0; i < this.comments.length; i++) {
+				if (this.comments[i].from == username) {
+					// Find the right index and remove it
+					this.comments.splice(i, 1);
+				}
+			}
 			return false;
 		},
 		getIgnoreList: function() {
@@ -296,19 +303,30 @@ var vm = new Vue({
 			}
 			return JSON.parse(ignore);
 		},
-		clearIgnoreList: function() {
-			this.ignore = emptyIgnoreList();
+		saveIgnoreList: function() {
 			window.localStorage.setItem("ignore", JSON.stringify(this.ignore));
 		},
-		addToIgnore: function(id) {
+		clearIgnoreList: function() {
+			this.ignore = emptyIgnoreList();
+			this.saveIgnoreList();
+		},
+		addCommentToIgnore: function(id) {
 			if (this.removeComment(id)) {
 				this.ignore["comments"].push(id);
-				console.log(this.ignore);
-				window.localStorage.setItem("ignore", JSON.stringify(this.ignore));
-				console.log(this.getIgnoreList());
+				this.saveIgnoreList();
+				this.loadMessages();
 				this.createDialog("is-success", "Comments ignored.", 2000);
 			} else {
 				this.createDialog("is-error", "Could not find comment with ID: " + id + ".", 5000);
+			}
+		},
+		addUserToIgnore: function(username) {
+			if (this.removeCommentsFromUser(username)) {
+				this.ignore["users"].push(username);
+				this.saveIgnoreList();
+				this.createDialog("is-success", "User ignored: " + username, 2000);
+			} else {
+				this.createDialog("is-error", "Could not find user with username: " + username + ".", 5000);
 			}
 		}
 	}
