@@ -8,6 +8,13 @@ sc2.init({
 	//access: $.cookie("access_token")  // requires latest version // use `npm i sc2-sdk --save`
 });
 
+var emptyIgnoreList = function() {
+	return {
+		comments: [],
+		users: []
+	};
+}
+
 // Initialize the Vue Model    
 var vm = new Vue({
 	el: '#vm',
@@ -21,6 +28,8 @@ var vm = new Vue({
 			// Start with a default vote value of 100%
 			$.cookie("vote%", 100, { expires: 7, path: '/' });
 		}
+		// Load ignore list
+		this.ignore = this.getIgnoreList();
 
 	  	console.log('Load Steem profile');
 		// Request user details if token is available
@@ -61,7 +70,8 @@ var vm = new Vue({
 		},
 		// init with a default vote value of 100%
 		vote: 100,		// Default value for voting percentage
-		dialog: null	// Message for the user
+		dialog: null,	// Message for the user
+		ignore: emptyIgnoreList()
 	},
 	computed: { 
 		username() { 
@@ -184,42 +194,53 @@ var vm = new Vue({
 				// VueJS Ressources plugin: https://github.com/pagekit/vue-resource
 				this.$http.get(url).then(response => {
 					var comments = response.data.comments;
-					console.log("Found " + comments.length + " new comment(s).");
 
 					this.articles = [];
+					let filteredComments = [];
+					
 					let j = 0;
 					let articlesIds = new Set();
 					for (let i = 0; i < comments.length; i++) {
-						if (!articlesIds.has(comments[i].rootId)) {
-							this.articles[j++] = {
-								id: comments[i].rootId, 
-								title: comments[i].rootTitle
-							}
-							articlesIds.add(comments[i].rootId);
+						
+						let comment = comments[i];
+						if (this.getIgnoreList().users.includes(comment.from) || this.getIgnoreList().comments.includes(comment.id)) {
+							// Filter comments based on ignore lists
+							continue;
 						}
-					}
 
-					this.comments = comments;
+						if (!articlesIds.has(comment.rootId)) {
+							this.articles[j++] = {
+								id: comment.rootId, 
+								title: comment.rootTitle
+							}
+							articlesIds.add(comment.rootId);
+						}
+
+						filteredComments.push(comment);
+					}					
+
+					this.comments = filteredComments;
+					console.log("Found " + this.comments.length + " new comment(s).");
 					this.createDialog("is-success", "Found " + comments.length + " comments on " + articlesIds.length + " articles.", 5000);
+
 					this.loadMessages();
 				})
 			}
 		},
 		loadMessages: function() {
 			// empty the current inbox
-			let data = [];
+			this.messages = [];
 
 			// TODO adapt pagination values
 			this.paginate = {};
 
 			// reload inbox with the new data
-
 			let pos = 0;
 			for (var i = 0; i < this.comments.length; i++) {
 
 				let comment = this.comments[i];
 				if (this.filter.id == null || this.filter.id == comment.rootId) {
-					data[pos++] = {
+					this.messages[pos++] = {
 						articleId: comment.rootId,
 						id: comment.id,
 						from: comment.author,
@@ -232,20 +253,63 @@ var vm = new Vue({
 						permlink: comment.permlink
 					};
 
-					if (data.length >= 10) {
+					if (this.messages.length >= 10) {
 						// TODO: Only keep 10 most recent comments until pagination is ready
 						break;
 					}
 				}
 			}
 
-			this.messages = data;
-			if (data.length > 0) {
-				this.showMessage(data[0]);
+			if (this.messages.length > 0) {
+				this.showMessage(this.messages[0]);
 			} else {
 				console.log("No comments found for " + this.filter.title);
 			}
 			
+		},
+		removeComment: function(id) {
+			// Find comment based on id and remove it from the list
+			for (var i = 0; i < this.comments.length; i++) {
+				if (this.comments[i].id == id) {
+					this.comments.splice(i, 1);
+					//this.createDialog("is-success", "Comments removed.", 2000);
+					this.loadMessages();
+					return true;
+				}
+			}
+
+			return false;
+		},
+		getIgnoreList: function() {
+			let ignore = window.localStorage.getItem("ignore");
+			if (ignore == null) {
+				this.clearIgnoreList();
+				this.ignore = emptyIgnoreList();
+			} else {
+				// Check for missing Array in case version changed
+				if (!ignore.users) {
+					ignore.users = [];
+				}
+				if (!ignore.comments) {
+					ignore.comments = [];
+				}
+			}
+			return JSON.parse(ignore);
+		},
+		clearIgnoreList: function() {
+			this.ignore = emptyIgnoreList();
+			window.localStorage.setItem("ignore", JSON.stringify(this.ignore));
+		},
+		addToIgnore: function(id) {
+			if (this.removeComment(id)) {
+				this.ignore["comments"].push(id);
+				console.log(this.ignore);
+				window.localStorage.setItem("ignore", JSON.stringify(this.ignore));
+				console.log(this.getIgnoreList());
+				this.createDialog("is-success", "Comments ignored.", 2000);
+			} else {
+				this.createDialog("is-error", "Could not find comment with ID: " + id + ".", 5000);
+			}
 		}
 	}
 });
