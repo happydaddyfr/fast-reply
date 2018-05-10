@@ -61,11 +61,13 @@ var vm = new Vue({
 		  	} 
 		} 
 	},
-	filters: {
+	filters: {  // https://vuejs.org/v2/guide/filters.html
 	  truncate: function (value, length) {
+	  	// Remove words making a string larger than a given size
 	    if (!value) return '';
 	    if (value.length <= length) return value;
 
+	    // https://stackoverflow.com/a/33379772/957103
 	    function truncateOnWord(str, limit) {
 	        var trimmable = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF';
 	        var reg = new RegExp('(?=[' + trimmable + '])');
@@ -80,6 +82,8 @@ var vm = new Vue({
 	    return truncateOnWord(value, length) + " [...]";
 	  },
 	  markdownToHTML: function(value) {
+	  	// Transform Markdown markup into HTML
+	  	// ShowDownJS: https://github.com/showdownjs/showdown
 	  	return new showdown.Converter().makeHtml(value);
 	  }
 	},
@@ -115,8 +119,9 @@ var vm = new Vue({
 		formatDate: function(date) {
 	      // Format date from UTC to locale Date
 	      return new Date(Date.parse(date)).toLocaleDateString();
-    	},
+    	}, 
     	profile: function(name) {
+    	  // Creation d'un lien vers le profile steemit d'un utilisateur
     	  return "https://www.steemit.com/@" + name;
     	},
 		reload: function(name) {
