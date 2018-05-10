@@ -150,10 +150,6 @@ var vm = new Vue({
 			$('.message .content').html(msg_body);
 			$('.message .control .reply').val('');
 			$('.message .control .reply').focus();
-
-			// Add id in data-commentId attribute (not used)
-			let ignore = $("#ignore")[0];
-			ignore.dataset.commentid = msg.id;
 			
 			this.selectedComment = msg;
 			this.vote = $.cookie("vote%");
@@ -340,49 +336,114 @@ var vm = new Vue({
 				this.createDialog("is-error", "Could not find user with username: " + username + ".", 5000);
 			}
 		},
-		ignoreComment: function() {
+
+		// ACTION on Comments
+
+		ignoreSelectedComment: function() {
 			if (this.selectedComment) {
 				this.addCommentToIgnore(this.selectedComment.id);
 			} else {
-				console.log('No selected comment');
+				alert('No comment selected');
+			}
+		},
+		voteSelectedComment: function() {
+			if (this.selectedComment) {
+				this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
+				this.removeComment(this.selectedComment.id);
+			} else {
+				alert('No comment selected');
+			}
+		},
+		replyToSelectedComment: function() {
+			if (this.selectedComment) {
+				let body = $('.message .control .reply').val();
+				if (body.length == 0) {
+					alert('Comment is empty');
+				} else {
+					this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
+					if (this.vote > 0) {
+						// If vote is defined, also vote on the comment
+						this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
+					}
+					this.removeComment(this.selectedComment.id);
+				}
+			} else {
+				alert('No comment selected');
 			}
 		},
 
-		// STEEM CONNECT HELPERS 
+		// STEEM CONNECT HELPERS
 
-	    followAccount: function(username) {
-	      app = this
-	      sc2.follow(this.steemconnect.user.name, username, function (err, res) {
+		voteComment: function(author, permlink, weight) {
+	      app = this;
+	      sc2.vote(this.steemconnect.user.name, author, permlink, weight, function (err, res) {
 	        if (!err) {
-	          app.createDialog("is-success", "You successfully followed @" + username, 2000)
+	          app.createDialog("is-success", 'You successfully voted for @' + author + '/' + permlink, 2000);
 	          console.log(app.dialog.data, err, res);
 	        } else {
 	          console.log(err);
-	          app.createDialog("is-danger", err, 5000)
+	          app.createDialog("is-danger", err);
+	        }
+	      });
+	    },
+
+		replyComment: function(author, permlink, body) {
+	      app = this;
+	      sc2.comment(author, permlink, this.steemconnect.user.name, permlink+'-'+ Date.now(), 'Fast-Reply', body, null, function (err, res) {
+	        if (!err) {
+	          app.createDialog("is-success", 'You successfully commented post @' + author + '/' + permlink, 2000);
+	          console.log(app.dialog.data, err, res);
+	        } else {
+	          console.log(err);
+	          app.createDialog("is-danger", err, 5000);
+	        }
+	      });
+	    },
+		shareComment: function(author, permlink) {
+	      app = this;
+	      sc2.reblog(this.steemconnect.user.name, author, permlink, function (err, res) {
+	        if (!err) {
+	          app.createDialog("is-success", 'You successfully rebloged post @' + author + '/' + permlink, 2000);
+	          console.log(app.dialog.data, err, res);
+	        } else {
+	          console.log(err);
+	          app.createDialog("is-danger", err, 5000);
+	        }
+	      });
+	    },
+	    followAccount: function(username) {
+	      app = this;
+	      sc2.follow(this.steemconnect.user.name, username, function (err, res) {
+	        if (!err) {
+	          app.createDialog("is-success", "You successfully followed @" + username, 2000);
+	          console.log(app.dialog.data, err, res);
+	        } else {
+	          console.log(err);
+	          app.createDialog("is-danger", err, 5000);
 	        }
 	      });
 	    },
 	    unfollowAccount: function(username) {
-	      app = this
+	      app = this;
 	      sc2.unfollow(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
-	          app.createDialog("is-warning", "You successfully unfollowed @" + username, 2000)
+	          app.createDialog("is-warning", "You successfully unfollowed @" + username, 2000);
 	          console.log(app.dialog.data, err, res);
 	        } else {
 	          console.log(err);
-	          app.createDialog("is-danger", err, 5000)
+	          app.createDialog("is-danger", err, 5000);
 	        }
 	      });
 	    },
 	    ignoreAccount: function(username) {
-	      app = this
+	      app = this;
 	      sc2.ignore(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
-	          app.createDialog("is-warning", "You successfully ignored @" + username, 2000)
+	          app.createDialog("is-warning", "You successfully ignored @" + username, 2000);
 	          console.log(app.dialog.data, err, res);
 	        } else {
 	          console.log(err);
-	          app.createDialog("is-danger", err, 5000)
+	          app.createDialog("is-danger", err, 5000);
 	        }
 	      });
 	    }
