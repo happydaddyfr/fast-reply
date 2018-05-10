@@ -113,6 +113,8 @@ var vm = new Vue({
 				this.$options.filters.markdownToHTML(msg.content) +
 				'</p>';
 			$('.message .content').html(msg_body);
+			$('.message .control .reply').val('');
+			$('.message .control .reply').focus();
 		},
 		formatDate: function(date) {
 	      // Format date from UTC to locale Date
