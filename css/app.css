@@ -9,3 +9,7 @@ hr {
 h3 {
     margin-bottom: 20px;
 }
+
+.low-reputation {
+	background: lightyellow;
+}
