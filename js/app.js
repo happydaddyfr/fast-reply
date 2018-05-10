@@ -67,8 +67,8 @@ var vm = new Vue({
 	}, 
 	watch: { 
 		username(newUsername, oldUsername) { 
-			if (newUsername != null) { 
-				this.reload(newUsername); 
+			if (newUsername != null && newUsername != oldUsername) { 
+				this.reload(); 
 		  	} 
 		} 
 	},
@@ -144,35 +144,38 @@ var vm = new Vue({
     	  //console.log('Changing vote value to ' + this.vote);
     	  $.cookie("vote%", this.vote, { expires: 7, path: '/' });
     	},
-		reload: function(name) {
+		reload: function() {
+			var name = this.username;
+			if (name != null) {
 
-			var url = "http://api.comprendre-steem.fr/getComments?username=roxane&test=" + name;  // TODO: remove 'roxane&test=' to use logged user
-			console.log("refreshing " + url);
+				var url = "http://api.comprendre-steem.fr/getComments?username=roxane&test=" + name;  // TODO: remove 'roxane&test=' to use logged user
+				console.log("refreshing " + url);
 
-			// VueJS Ressources plugin: https://github.com/pagekit/vue-resource
-			this.$http.get(url).then(response => {
-				// empty the current inbox
-				this.messages = {};
+				// VueJS Ressources plugin: https://github.com/pagekit/vue-resource
+				this.$http.get(url).then(response => {
+					// empty the current inbox
+					this.messages = {};
 
-				// TODO adapt pagination values
-				this.paginate = {};
-			
-				var comments = response.data.comments;
-				console.log("Found " + comments.length + " new comment(s).");
+					// TODO adapt pagination values
+					this.paginate = {};
+				
+					var comments = response.data.comments;
+					console.log("Found " + comments.length + " new comment(s).");
 
-				// reload inbox with the new data
-				for (var i = 0; i < comments.length && i < 10; i++) {
-					this.messages[i] = {
-						from: comments[i].author,
-						reputation: comments[i].reputation,
-						timestamp: comments[i].created,
-						subject: comments[i].rootTitle,
-						content: comments[i].body,
-						payout: comments[i].payout,
-						url : comments[i].url
-					};
-				}
-			})
+					// reload inbox with the new data
+					for (var i = 0; i < comments.length && i < 10; i++) {
+						this.messages[i] = {
+							from: comments[i].author,
+							reputation: comments[i].reputation,
+							timestamp: comments[i].created,
+							subject: comments[i].rootTitle,
+							content: comments[i].body,
+							payout: comments[i].payout,
+							url : comments[i].url
+						};
+					}
+				})
+			}
 		}
 	}
 });

@@ -154,10 +154,10 @@ html,body {
   color: #AAAAAA;
 }
 .inbox-messages {
-  margin-top:60px;
+  margin-top: 0px;  /* was 60px */
 }
 .message-preview {
-  margin-top: 60px;
+  margin-top: 0px;  /* was 60px */
 }
 .inbox-messages .card {
   width: 100%;
