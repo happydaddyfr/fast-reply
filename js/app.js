@@ -71,7 +71,8 @@ var vm = new Vue({
 		// init with a default vote value of 100%
 		vote: 100,		// Default value for voting percentage
 		dialog: null,	// Message for the user
-		ignore: emptyIgnoreList()
+		ignore: emptyIgnoreList(),
+		selectedComment: null
 	},
 	computed: { 
 		username() { 
@@ -151,6 +152,11 @@ var vm = new Vue({
 			$('.message .content').html(msg_body);
 			$('.message .control .reply').val('');
 			$('.message .control .reply').focus();
+
+			// Add id in data-commentId attribute (not used)
+			let ignore = $("#ignore")[0];
+			ignore.dataset.commentid = msg.id;
+			
 			this.vote = $.cookie("vote%");
 		},
 		formatDate: function(date) {
@@ -262,8 +268,10 @@ var vm = new Vue({
 
 			if (this.messages.length > 0) {
 				this.showMessage(this.messages[0]);
+				this.selectedComment = this.messages[0];
 			} else {
 				console.log("No comments found for " + this.filter.title);
+				this.selectedComment = null;
 			}
 			
 		},
@@ -304,6 +312,7 @@ var vm = new Vue({
 			return JSON.parse(ignore);
 		},
 		saveIgnoreList: function() {
+			// LocalStorage : https://stackoverflow.com/questions/2010892/storing-objects-in-html5-localstorage
 			window.localStorage.setItem("ignore", JSON.stringify(this.ignore));
 		},
 		clearIgnoreList: function() {
@@ -327,6 +336,13 @@ var vm = new Vue({
 				this.createDialog("is-success", "User ignored: " + username, 2000);
 			} else {
 				this.createDialog("is-error", "Could not find user with username: " + username + ".", 5000);
+			}
+		},
+		ignoreComment: function() {
+			if (this.selectedComment) {
+				this.addCommentToIgnore(this.selectedComment.id);
+			} else {
+				console.log('No selected comment');
 			}
 		}
 	}
