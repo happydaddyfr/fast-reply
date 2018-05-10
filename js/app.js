@@ -47,6 +47,7 @@ var vm = new Vue({
 		},
 		messages: {},
 		comments: null,
+		filter: null,
 		paginate: {
 			pointer: {
 				start: 1,
