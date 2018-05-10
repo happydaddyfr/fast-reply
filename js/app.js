@@ -1,3 +1,4 @@
+console.log('Initialize SteemConnect');
 // initialize SteemConnect v2
 sc2.init({
 	app: 'fast-reply.app',
@@ -7,41 +8,43 @@ sc2.init({
 	//access: $.cookie("access_token")  // requires latest version // use `npm i sc2-sdk --save`
 });
 
-// Need to define an object that will be observed for changes by Vue.js
-var steemconnect = {};
-steemconnect.user = null;
-steemconnect.metadata = null;
-steemconnect.profile_image = null;
-
-// Request user details if token is available
-if ($.cookie("access_token") != null) {
-	sc2.setAccessToken($.cookie("access_token"));
-	sc2.me(function(err, result) {
-		// console.log('/me', err, result); // DEBUG
-		if (!err) {
-			// Fill the steemconnect placeholder with results
-			steemconnect.user = result.account;
-			steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
-			steemconnect.profile_image = JSON.parse(steemconnect.user.json_metadata)['profile']['profile_image'];
-		}
-	});
-};
-
 // Initialize the Vue Model    
 var vm = new Vue({
 	el: '#vm',
 	created() {
-	  console.log('VueJS #vm initialized');
-	  if ($.cookie("vote%") != null) {
-	  	this.vote = $.cookie("vote%");
-	  } else {
-	  	// Start with a default vote value of 100%
-	  	$.cookie("vote%", 100, { expires: 7, path: '/' });
-	  }
+	  	console.log('VueJS #vm initialized');
+
+		console.log('Load settings');	  
+		if ($.cookie("vote%") != null) {
+			this.vote = $.cookie("vote%");
+		} else {
+			// Start with a default vote value of 100%
+			$.cookie("vote%", 100, { expires: 7, path: '/' });
+		}
+
+	  	console.log('Load Steem profile');
+		// Request user details if token is available
+		if ($.cookie("access_token") != null) {
+			sc2.setAccessToken($.cookie("access_token"));
+			sc2.me(function(err, result) {
+				console.log('/me', err, result); // DEBUG
+				if (!err) {
+					// Fill the steemconnect placeholder with results
+					vm.$data.steemconnect.user = result.account;
+					vm.$data.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
+					vm.$data.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image'];
+				}
+			});
+		};
 	},
 	data: {
 		loginUrl: sc2.getLoginURL(),
-		steemconnect: steemconnect,
+		steemconnect: {
+			// Need to define an object that will be observed for changes by Vue.js
+			user: null,
+			metadata: null,
+			profile_image: null
+		},
 		messages: {},
 		comments: null,
 		paginate: {
