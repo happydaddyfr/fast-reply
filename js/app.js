@@ -119,9 +119,6 @@ var vm = new Vue({
     	profile: function(name) {
     	  return "https://www.steemit.com/@" + name;
     	},
-		showUser: function() {
-		  console.log(this.username);
-		},
 		reload: function(name) {
 
 			var url = "http://api.comprendre-steem.fr/getComments?username=roxane&test=" + name;  // TODO: remove 'roxane&test=' to use logged user
