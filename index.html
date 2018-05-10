@@ -62,11 +62,13 @@
                         </a>
                         <div class="navbar-item has-dropdown is-hoverable">
                             <a class="navbar-link">
-                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter }}</em></span> 
+                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter.title | trunctate(50) }}</em></span> 
                             </a>
                             <div class="navbar-dropdown">
-                                <a class="navbar-item" id="filter-article-all" @click="changeFilter(null)">All articles</a>
-                                <a v-for="(title, index) in articles" class="navbar-item" v-bind:id="'filter-article-'+index" @click="changeFilter(title)">{{ title }}</a>
+                                <a class="navbar-item" id="filter-article-all" @click="changeFilter(null,null)">All articles</a>
+                                <a v-for="article in articles" class="navbar-item" v-bind:id="'filter-article-'+article.id" @click="changeFilter(article.id, article.title)">
+                                    {{ article.title | truncate(50) }}
+                                </a>
                             </div>
                         </div>                        
                     </div>
@@ -135,7 +137,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-content" v-show="hasComments">
+                        <div class="card-content" v-show="!hasComments">
                             <div class="msg-subject">
                                 <span class="msg-subject"><strong>No comments</strong></span>
                             </div>
@@ -143,7 +145,7 @@
                     </div>
                 </div>
               
-                <div class="column is-8 message hero is-fullheight is-hidden" id="message-pane">
+                <div class="column is-8 message hero is-fullheight" id="message-pane" v-show="hasComments">
                     <!--div class="action-buttons">
                         <div class="control is-grouped">
                             <a class="button is-small"><i class="fa fa-inbox"></i></a>

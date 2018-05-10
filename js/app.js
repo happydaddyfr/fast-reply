@@ -48,7 +48,10 @@ var vm = new Vue({
 		messages: null,
 		comments: null,
 		articles: null,
-		filter: null,
+		filter: {
+			id: null,
+			title: null
+		},
 		paginate: {
 			pointer: {
 				start: 1,
@@ -67,7 +70,7 @@ var vm = new Vue({
 		  	return null; 
 		},
     	hasComments() {
-    		return (this.messages == null || this.messages.length == 0);
+    		return (this.messages != null && this.messages.length > 0);
     	}
 	}, 
 	watch: { 
@@ -153,8 +156,11 @@ var vm = new Vue({
     	  //console.log('Changing vote value to ' + this.vote);
     	  $.cookie("vote%", this.vote, { expires: 7, path: '/' });
     	},
-    	changeFilter: function(articleTitle) {
-    		this.filter = articleTitle;
+    	changeFilter: function(articleId, articleTitle) {
+    		this.filter = {
+    			id: articleId, 
+    			title: articleTitle
+    		};
     	},
 		reload: function() {
 			var name = this.username;
@@ -168,12 +174,19 @@ var vm = new Vue({
 					var comments = response.data.comments;
 					console.log("Found " + comments.length + " new comment(s).");
 
-					let articlesTitles = new Set();
+					this.articles = [];
+					let j = 0;
+					let articlesIds = new Set();
 					for (let i = 0; i < comments.length; i++) {
-						articlesTitles.add(comments[i].rootTitle);
+						if (!articlesIds.has(comments[i].rootId)) {
+							this.articles[j++] = {
+								id: comments[i].rootId, 
+								title: comments[i].rootTitle
+							}
+							articlesIds.add(comments[i].rootId);
+						}
 					}
 
-					this.articles = Array.from(articlesTitles);
 					this.comments = comments;
 					this.loadMessages();
 				})
@@ -192,8 +205,9 @@ var vm = new Vue({
 			for (var i = 0; i < this.comments.length; i++) {
 
 				let comment = this.comments[i];
-				if (this.filter == null || this.filter == comment.rootTitle) {
+				if (this.filter.id == null || this.filter.id == comment.rootId) {
 					data[pos++] = {
+						articleId: comment.rootId,
 						id: comment.id,
 						from: comment.author,
 						reputation: comment.reputation,
@@ -216,7 +230,7 @@ var vm = new Vue({
 			if (data.length > 0) {
 				this.showMessage(data[0]);
 			} else {
-				console.log("No comments found for " + this.filter);
+				console.log("No comments found for " + this.filter.title);
 			}
 			
 		}
