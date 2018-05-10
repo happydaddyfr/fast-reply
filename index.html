@@ -174,13 +174,16 @@
                         </div>
                         <div class="field is-grouped is-grouped-right">
                           <div class="control">
+                            <button class="button is-info" @click.prevent="shareSelectedComment">Share</button>
+                          </div>
+                          <div class="control">
                             <button class="button is-link" @click.prevent="replyToSelectedComment">Vote and Reply</button>
                           </div>
                           <div class="control">
                             <button id="vote" class="button is-warning" @click.prevent="voteSelectedComment">Vote</button>
                           </div>
                           <div class="control">
-                            <button id="ignore" class="button is-text" @click.prevent="ignoreSelectedComment">Ignore</button>
+                            <button id="ignore" class="button is-danger" @click.prevent="ignoreSelectedComment">Ignore</button>
                           </div>
                         </div>
                     </div>

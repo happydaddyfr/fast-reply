@@ -3,7 +3,7 @@ console.log('Initialize SteemConnect');
 sc2.init({
 	app: 'fast-reply.app',
 	callbackURL: 'http://localhost:8080/steemconnect/', // Dev localhost URL
-	//callbackURL: 'http://steemconnect.surge.sh/steemconnect/',  // Live demo URL
+	//callbackURL: 'http://fast-reply.surge.sh/steemconnect/',  // Live demo URL
 	scope: ['vote', 'comment', 'custom_json'],
 	//access: $.cookie("access_token")  // requires latest version // use `npm i sc2-sdk --save`
 });
@@ -367,6 +367,14 @@ var vm = new Vue({
 					}
 					this.removeComment(this.selectedComment.id);
 				}
+			} else {
+				alert('No comment selected');
+			}
+		},
+		shareSelectedComment: function() {
+			if (this.selectedComment) {
+				this.shareComment(this.selectedComment.from, this.selectedComment.permlink);
+				this.removeComment(this.selectedComment.id);
 			} else {
 				alert('No comment selected');
 			}
