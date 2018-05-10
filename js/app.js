@@ -45,15 +45,16 @@ var vm = new Vue({
 			metadata: null,
 			profile_image: null
 		},
-		messages: {},
+		messages: null,
 		comments: null,
+		articles: null,
 		filter: null,
 		paginate: {
 			pointer: {
 				start: 1,
 				end: 10
 			},
-			total: 100
+			total: 0
 		},
 		// init with a default vote value of 100%
 		vote: 100
@@ -154,28 +155,47 @@ var vm = new Vue({
 
 				// VueJS Ressources plugin: https://github.com/pagekit/vue-resource
 				this.$http.get(url).then(response => {
-					// empty the current inbox
-					this.messages = {};
-
-					// TODO adapt pagination values
-					this.paginate = {};
-				
 					var comments = response.data.comments;
 					console.log("Found " + comments.length + " new comment(s).");
 
-					// reload inbox with the new data
-					for (var i = 0; i < comments.length && i < 10; i++) {
-						this.messages[i] = {
-							from: comments[i].author,
-							reputation: comments[i].reputation,
-							timestamp: comments[i].created,
-							subject: comments[i].rootTitle,
-							content: comments[i].body,
-							payout: comments[i].payout,
-							url : comments[i].url
-						};
+					let articlesTitles = new Set();
+					for (let i = 0; i < comments.length; i++) {
+						articlesTitles.add(comments[i].rootTitle);
 					}
+
+					this.articles = Array.from(articlesTitles);
+					this.comments = comments;
+					this.loadMessages();
 				})
+			}
+		},
+		loadMessages: function() {
+			// empty the current inbox
+			this.messages = [];
+
+			// TODO adapt pagination values
+			this.paginate = {};
+
+			// reload inbox with the new data
+			for (var i = 0; i < this.comments.length; i++) {
+
+				let comment = this.comments[i];
+				if (this.filter == null || this.filter == comment.rootTitle) {
+					this.messages[i] = {
+						from: comment.author,
+						reputation: comment.reputation,
+						timestamp: comment.created,
+						subject: comment.rootTitle,
+						content: comment.body,
+						payout: comment.payout,
+						url : comment.url
+					};
+
+					if (this.messages.length >= 10) {
+						// TODO: Only keep 10 most recent comments until pagination is ready
+						break;
+					}
+				}
 			}
 		}
 	}

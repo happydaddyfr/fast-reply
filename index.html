@@ -72,9 +72,14 @@
                                 <a @click="logout" href="#" class="navbar-item">Logout</a>
                             </div>
                         </div>
-                        <a class="navbar-item">
-                            <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter }}</em></span> 
-                        </a> 
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">
+                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter }}</em></span> 
+                            </a>
+                        <div class="navbar-dropdown">
+                                <a v-for="(title, index) in articles" class="navbar-item" v-bind:id="'filter-article-'+index" v-on:click="filter(title, index)">{{ title }}</a>
+                            </div>
+                        </div>
                         <a class="navbar-item" @click="reload">
                             <span><i class="fa fa-refresh"></i> Reload</span>
                         </a>
