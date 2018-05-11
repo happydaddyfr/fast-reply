@@ -308,6 +308,7 @@ var vm = new Vue({
 			this.ignore = emptyIgnoreList();
 			this.saveIgnoreList();
 			this.reload();
+			this.createDialog("is-success", "Ignore list cleared.", 2000);
 		},
 		addCommentToIgnore: function(id) {
 			if (this.removeComment(id)) {
