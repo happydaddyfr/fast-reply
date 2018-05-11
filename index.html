@@ -81,8 +81,8 @@
                                 {{ username }}
                             </a>
                             <div class="navbar-dropdown">
-                                <a href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
-                                <a :href="$options.filters.profile(username)" class="navbar-item">Steemit Profile</a>
+                                <a target="_blank" href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
+                                <a target="_blank" :href="$options.filters.profile(username)" class="navbar-item">Steemit Profile</a>
                                 <a class="navbar-item" @click.prevent="clearIgnoreList">Clear ignore list</a>
                                 <hr class="navbar-divider">
                                 <a @click.prevent="logout" href="#" class="navbar-item">Logout</a>
