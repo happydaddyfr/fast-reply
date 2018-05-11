@@ -82,7 +82,7 @@
                             </a>
                             <div class="navbar-dropdown">
                                 <a href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
-                                <a :href="profile(username)" class="navbar-item">Steemit Profile</a>
+                                <a :href="$options.filters.profile(username)" class="navbar-item">Steemit Profile</a>
                                 <a class="navbar-item" @click.prevent="clearIgnoreList">Clear ignore list</a>
                                 <hr class="navbar-divider">
                                 <a @click.prevent="logout" href="#" class="navbar-item">Logout</a>
@@ -102,16 +102,16 @@
                             <div class="card-content" :class="[msg.reputation < 25 ? 'low-reputation': '']">
                                 <div class="msg-header">
                                     
-                                    <a target="_blank" :href="profile(msg.from)">
+                                    <a target="_blank" :href="$options.filters.profile(msg.from)">
                                         <span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span>
                                     </a>                                    
                                     
                                     <span class="msg-attachment">{{ msg.payout }} <i class="fa fa-dollar"></i></span>
-                                    <span class="msg-timestamp">{{ formatDate(msg.timestamp) }}</span>
+                                    <span class="msg-timestamp">{{ msg.timestamp | date }}</span>
                                 </div>
                                 <div class="msg-subject">
                                     <span class="msg-subject"><strong>{{ msg.subject }}</strong></span>
-                                    <span class="msg-attachment"><a target="_blank" :href="steemitUrl(msg.url)"><i class="fa fa-paperclip"></i></a></span>
+                                    <span class="msg-attachment"><a target="_blank" :href="$options.filters.steemit(msg.url)"><i class="fa fa-paperclip"></i></a></span>
                                 </div>
                                 <div class="msg-snippet">
                                     <!-- Balise v-html : https://fr.vuejs.org/v2/guide/syntax.html#Interpretation-du-HTML -->
@@ -131,8 +131,8 @@
                 <div class="column is-8 message hero is-fullheight" id="message-pane" v-show="hasComments">
                     <div class="box message-preview">
                         <div class="top">
-                            <div class="avatar">
-                                <img src="https://placehold.it/128x128">
+                            <div v-if="selectedComment" class="avatar">
+                                <img :src="$options.filters.avatar(selectedComment.from)">
                             </div>
                             <div class="address">
                                 <div v-if="selectedComment" class="name">
@@ -152,7 +152,7 @@
                             </div>
                             <div>
                                 <span v-if="selectedComment" class="msg-attachment">
-                                    <a target="_blank" :href="steemitUrl(selectedComment.url)">
+                                    <a target="_blank" :href="$options.filters.steemit(selectedComment.url)">
                                         <i class="fa fa-paperclip"></i>
                                     </a>
                                 </span>

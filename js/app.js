@@ -36,7 +36,7 @@ var vm = new Vue({
 		if ($.cookie("access_token") != null) {
 			sc2.setAccessToken($.cookie("access_token"));
 			sc2.me(function(err, result) {
-				console.log('/me', err, result); // DEBUG
+				//console.log('/me', err, result); // DEBUG
 				if (!err) {
 					// Fill the steemconnect placeholder with results
 					vm.$data.steemconnect.user = result.account;
@@ -97,31 +97,46 @@ var vm = new Vue({
 		}
 	},
 	filters: {  // https://vuejs.org/v2/guide/filters.html
-	  truncate: function (value, length) {
-	  	// Remove words making a string larger than a given size
-	    if (!value) return '';
-	    if (value.length <= length) return value;
+		truncate: function (value, length) {
+			// Remove words making a string larger than a given size
+		if (!value) return '';
+		if (value.length <= length) return value;
 
-	    // https://stackoverflow.com/a/33379772/957103
-	    function truncateOnWord(str, limit) {
-	        var trimmable = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF';
-	        var reg = new RegExp('(?=[' + trimmable + '])');
-	        var words = str.split(reg);
-	        var count = 0;
-	        return words.filter(function(word) {
-	            count += word.length;
-	            return count <= limit;
-	        }).join('');
-	    }
+		// https://stackoverflow.com/a/33379772/957103
+		function truncateOnWord(str, limit) {
+		    var trimmable = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF';
+		    var reg = new RegExp('(?=[' + trimmable + '])');
+		    var words = str.split(reg);
+		    var count = 0;
+		    return words.filter(function(word) {
+		        count += word.length;
+		        return count <= limit;
+		    }).join('');
+		}
 
-	    return truncateOnWord(value, length) + " [...]";
-	  },
-	  markdownToHTML: function(value) {
-	  	// TODO: check if content is indeed markdown (via API)
-	  	// Transform Markdown markup into HTML
-	  	// ShowDownJS: https://github.com/showdownjs/showdown
-	  	return new showdown.Converter().makeHtml(value);
-	  }
+		return truncateOnWord(value, length) + " [...]";
+		},
+		markdownToHTML: function(value) {
+			// TODO: check if content is indeed markdown (via API)
+			// Transform Markdown markup into HTML
+			// ShowDownJS: https://github.com/showdownjs/showdown
+			return new showdown.Converter().makeHtml(value);
+		},
+		date: function(date) {
+		  // Format date from UTC to locale Date
+		  return new Date(Date.parse(date)).toLocaleDateString();
+		},
+		steemit: function(path) {
+		  return "https://www.steemit.com" + path;
+		},
+		profile: function(username) {
+		  // Creation d'un lien vers le profile steemit d'un utilisateur
+		  return "https://www.steemit.com/@" + username;
+		},
+		avatar: function(username) {
+		  // Creation d'un lien vers l'avatar (image) steem d'un utilisateur // Thanks to Busy
+		  return "http://img.busy.org/@" + username;
+		}
 	},
 	methods: {
 		logout: function() {
@@ -142,7 +157,6 @@ var vm = new Vue({
 			$('#message-pane').removeClass('is-hidden');
 			$('.card').removeClass('active');
 			$('#msg-card-' + msg.id).addClass('active');
-			$('.message .avatar img').attr("src", "http://img.busy.org/@" + msg.from);
 
 			$('.message .control .reply').val('@' + msg.from + ' ');
 			$('.message .control .reply').focus();
@@ -150,17 +164,6 @@ var vm = new Vue({
 			this.selectedComment = msg;
 			this.vote = $.cookie("vote%");
 		},
-		formatDate: function(date) {
-	      // Format date from UTC to locale Date
-	      return new Date(Date.parse(date)).toLocaleDateString();
-    	},
-    	steemitUrl: function(path) {
-    	  return "https://www.steemit.com" + path;
-    	},
-    	profile: function(name) {
-    	  // Creation d'un lien vers le profile steemit d'un utilisateur
-    	  return "https://www.steemit.com/@" + name;
-    	},
     	changeVote: function() {
     	  this.vote = $('#vote-slider')[0].value;
     	  //console.log('Changing vote value to ' + this.vote);
@@ -395,7 +398,7 @@ var vm = new Vue({
 
 		replyComment: function(author, permlink, body) {
 	      app = this;
-	      sc2.comment(author, permlink, this.steemconnect.user.name, permlink+'-'+ Date.now(), 'Fast-Reply', body, null, function (err, res) {
+	      sc2.comment(author, permlink, this.steemconnect.user.name, permlink+'-'+ Date.now(), '', body, {app: 'fast-reply'}, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-success", 'You successfully commented post @' + author + '/' + permlink, 2000);
 	          console.log(app.dialog.data, err, res);
