@@ -98,7 +98,7 @@
                           <button class="delete" @click.prevent="deleteDialog"></button>
                           {{ dialog.data }}
                         </div>
-                        <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click.prevent="showMessage(msg)" :data-preview-id="msg.id">
+                        <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click="showMessage(msg)" :data-preview-id="msg.id">
                             <div class="card-content" :class="[msg.reputation < 25 ? 'low-reputation': '']">
                                 <div class="msg-header">
                                     
