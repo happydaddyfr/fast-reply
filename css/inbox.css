@@ -154,10 +154,10 @@ html,body {
   color: #AAAAAA;
 }
 .inbox-messages {
-  margin-top:60px;
+  margin-top: 0px;  /* was 60px */
 }
 .message-preview {
-  margin-top: 60px;
+  margin-top: 0px;  /* was 60px */
 }
 .inbox-messages .card {
   width: 100%;
@@ -195,7 +195,8 @@ html,body {
   padding: 0 20px;
 }
 .avatar img {
-  width: 40px;
+  max-width: 120px;
+  max-height: 80px;
   border-radius: 50px;
   border: 2px solid #999;
   padding: 2px;
@@ -211,15 +212,3 @@ html,body {
 .card.active {
   background-color:#F5F5F5;
 }
-© 2018 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-API
-Training
-Shop
-Blog
-About

@@ -2,12 +2,12 @@
 <html lang="fr">
 
 <head>
-    <title> Fast reply </title>
+    <title>Fast reply</title>
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     <link rel="stylesheet" href="css/sc2.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -19,19 +19,36 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
+
+    <!-- BULMA Extensions -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/css/inbox.css">
-    <style>
-    hr {
-        margin: 40px 0;
-    }
+    <link rel="stylesheet" type="text/css" href="/css/app.css">
 
-    h3 {
-        margin-bottom: 20px;
-    }
-    </style>
+    <!-- Favicon https://www.favicon-generator.org/ -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/img/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/img/favicon//apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/favicon//apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon//apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/favicon//apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/img/favicon//apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/img/favicon//apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/img/favicon//apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon//apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/img/favicon//android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon//favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon//favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon//favicon-16x16.png">
+    <link rel="manifest" href="/img/favicon//manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/img/favicon//ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
 </head>
 
 <body>
@@ -40,149 +57,134 @@
             <nav class="navbar has-shadow">
                 <div class="container">
                     <div class="navbar-brand">
-                        <p> {{ username }}</p>
-                        <div class="navbar-burger burger" data-target="navMenu">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </div>
-                    <div id="navMenu" class="navbar-menu">
-                        <div class="navbar-end">
-                            <div class="navbar-item has-dropdown is-active">
-                                <a class="navbar-link">
-                    Account
-                  </a>
-                                <div class="navbar-dropdown">
-                                    <a class="navbar-item">
-                      Dashboard
-                    </a>
-                                    <a class="navbar-item">
-                      Profile
-                    </a>
-                                    <a class="navbar-item">
-                      Settings
-                    </a>
-                                    <hr class="navbar-divider">
-                                    <a @click="logout" href="#" class="navbar-item">
-                      Logout
-                    </a>
-                                </div>
+                        <a class="navbar-item" href="#">
+                          <img src="img/fast-reply-icon.png" alt="Waiting no more"> Fast-Reply
+                        </a>
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">
+                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter.title | trunctate(50) }}</em></span> 
+                            </a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
+                                <a v-for="article in articles" class="navbar-item" v-bind:id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
+                                    {{ article.title | truncate(50) }}
+                                </a>
                             </div>
-                        </div>
+                        </div>                        
+                    </div>
+                    <div class="navbar-end">
+                        <a class="navbar-item" @click.prevent="reload">
+                            <span><i class="fa fa-refresh"></i> Reload</span>
+                        </a>
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">
+                                {{ username }}
+                            </a>
+                            <div class="navbar-dropdown">
+                                <a href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
+                                <a :href="profile(username)" class="navbar-item">Steemit Profile</a>
+                                <a class="navbar-item" @click.prevent="clearIgnoreList">Clear ignore list</a>
+                                <hr class="navbar-divider">
+                                <a @click.prevent="logout" href="#" class="navbar-item">Logout</a>
+                            </div>
+                        </div>                        
                     </div>
                 </div>
             </nav>
             <div class="columns" id="mail-app">
-                <aside class="column is-2 aside hero is-fullheight">
-                    <div>
-                        <div class="compose has-text-centered">
-                            <a class="button is-danger is-block is-bold">
-                <span class="compose">Compose</span>
-              </a>
-                        </div>
-                        <div class="main">
-                            <a href="#" class="item active"><span class="icon"><i class="fa fa-inbox"></i></span><span class="name">Inbox</span></a>
-                            <a href="#" class="item"><span class="icon"><i class="fa fa-star"></i></span><span class="name">Starred</span></a>
-                            <a href="#" class="item"><span class="icon"><i class="fa fa-envelope-o"></i></span><span class="name">Sent Mail</span></a>
-                            <a href="#" class="item"><span class="icon"><i class="fa fa-folder-o"></i></span><span class="name">Folders</span></a>
-                        </div>
-                    </div>
-                </aside>
-                <!--
-        <div class="column is-4 messages hero is-fullheight" id="message-feed">
-          <div class="action-buttons">
-            <div class="control is-grouped">
-              <a class="button is-small"><i class="fa fa-chevron-down"></i></a>
-              <a class="button is-small"><i class="fa fa-refresh"></i></a>
-            </div>
-            <div class="control is-grouped">
-              <a class="button is-small"><i class="fa fa-inbox"></i></a>
-              <a class="button is-small"><i class="fa fa-exclamation-circle"></i></a>
-              <a class="button is-small"><i class="fa fa-trash-o"></i></a>
-            </div>
-            <div class="control is-grouped">
-              <a class="button is-small"><i class="fa fa-folder"></i></a>
-              <a class="button is-small"><i class="fa fa-tag"></i></a>
-            </div>
-            <div class="control is-grouped pg">
-              <div class="title">{{ paginate.pointer.start }}-{{ paginate.pointer.end }} of {{ paginate.total }}</div>
-              <a class="button is-link"><i class="fa fa-chevron-left"></i></a>
-              <a class="button is-link"><i class="fa fa-chevron-right"></i></a>
-            </div>
-          </div>
-        </div>   
-      -->
                 <div class="column is-4 messages hero is-fullheight" id="message-feed">
-                    <div class="action-buttons">
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-chevron-down"></i></a>
-                            <a class="button is-small"><i class="fa fa-refresh"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-inbox"></i></a>
-                            <a class="button is-small"><i class="fa fa-exclamation-circle"></i></a>
-                            <a class="button is-small"><i class="fa fa-trash-o"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-folder"></i></a>
-                            <a class="button is-small"><i class="fa fa-tag"></i></a>
-                        </div>
-                        <div class="control is-grouped pg">
-                            <div class="title"></div>
-                            <a class="button is-link"><i class="fa fa-chevron-left"></i></a>
-                            <a class="button is-link"><i class="fa fa-chevron-right"></i></a>
-                        </div>
-                    </div>
- 
                     <div class="inbox-messages" id="inbox-messages">
-                    	<button v-on:click="showUser">Afficher les commentaires</button>
-                        <div v-for="(msg, index) in messages" class="card">
-                            <div class="card-content">
+                       <div v-if="dialog != null" class="notification" :class="dialog.type">
+                          <button class="delete" @click.prevent="deleteDialog"></button>
+                          {{ dialog.data }}
+                        </div>
+                        <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click.prevent="showMessage(msg)" :data-preview-id="msg.id">
+                            <div class="card-content" :class="[msg.reputation < 25 ? 'low-reputation': '']">
                                 <div class="msg-header">
-                                    <span class="msg-from"><small>From : {{msg.from }}</small></span>
-                                    <span class="msg-timestamp"></span>
-                                    <span class="msg-attachment"><a target="_blank" :href="msg.url"><i class="fa fa-paperclip"></i></a></span>
+                                    
+                                    <a target="_blank" :href="profile(msg.from)">
+                                        <span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span>
+                                    </a>                                    
+                                    
+                                    <span class="msg-attachment">{{ msg.payout }} <i class="fa fa-dollar"></i></span>
+                                    <span class="msg-timestamp">{{ formatDate(msg.timestamp) }}</span>
                                 </div>
                                 <div class="msg-subject">
-                                    <span class="msg-subject"><strong id="fake-subject-1">{{ msg.subject }}</strong></span>
+                                    <span class="msg-subject"><strong>{{ msg.subject }}</strong></span>
+                                    <span class="msg-attachment"><a target="_blank" :href="steemitUrl(msg.url)"><i class="fa fa-paperclip"></i></a></span>
                                 </div>
                                 <div class="msg-snippet">
-                                    <p id="fake-snippet-1">{{ msg.snippet }}</p>
+                                    <!-- Balise v-html : https://fr.vuejs.org/v2/guide/syntax.html#Interpretation-du-HTML -->
+                                    <!-- Usage des filtres : https://github.com/vuejs/vue/issues/4352 -->
+                                    <p v-html="$options.filters.truncate($options.filters.markdownToHTML(msg.content), 250)"></p>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card-content" v-show="!hasComments">
+                            <div class="msg-subject">
+                                <span class="msg-subject"><strong>No comments</strong></span>
                             </div>
                         </div>
                     </div>
                 </div>
               
-                <div class="column is-6 message hero is-fullheight is-hidden" id="message-pane">
-                    <div class="action-buttons">
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-inbox"></i></a>
-                            <a class="button is-small"><i class="fa fa-exclamation-circle"></i></a>
-                            <a class="button is-small"><i class="fa fa-trash-o"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-exclamation-circle"></i></a>
-                            <a class="button is-small"><i class="fa fa-trash-o"></i></a>
-                        </div>
-                        <div class="control is-grouped">
-                            <a class="button is-small"><i class="fa fa-folder"></i></a>
-                            <a class="button is-small"><i class="fa fa-tag"></i></a>
-                        </div>
-                    </div>
+                <div class="column is-8 message hero is-fullheight" id="message-pane" v-show="hasComments">
                     <div class="box message-preview">
                         <div class="top">
                             <div class="avatar">
                                 <img src="https://placehold.it/128x128">
                             </div>
                             <div class="address">
-                                <div class="name">John Smith</div>
-                                <div class="email">someone@gmail.com</div>
+                                <div class="name">
+                                    <a :href="'https://www.steemit.com/@' + (selectedComment ? selectedComment.from : 'fast-reply')">
+                                        @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                    </a>
+                                </div>
+                                <button @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
+                                    Follow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                </button>
+                                <button @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
+                                    Unfollow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                </button>
+                                <button @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
+                                    Ignore @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                </button>
+                            </div>
+                            <div>
+                                <strong><span class="subject"></span></strong>
                             </div>
                             <hr>
                             <div class="content">
                             </div>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <div class="field">
+                          <label class="label">Your Vote ({{ vote }}%)</label>
+                          <div class="control">
+                            <input id="vote-slider" class="slider is-fullwidth is-info is-large" step="1" min="0" max="100" :value="vote" @change.prevent="changeVote" type="range">
+                          </div>
+                        </div>
+
+                        <div class="field">
+                          <label class="label">Your Fast Reply</label>
+                          <div class="control">
+                            <textarea class="textarea reply" type="text" placeholder="Reply here..."></textarea>
+                          </div>
+                        </div>
+                        <div class="field is-grouped is-grouped-right">
+                          <div class="control">
+                            <button class="button is-info" @click.prevent="shareSelectedComment">Share</button>
+                          </div>
+                          <div class="control">
+                            <button class="button is-link" @click.prevent="replyToSelectedComment">Vote and Reply</button>
+                          </div>
+                          <div class="control">
+                            <button id="vote" class="button is-warning" @click.prevent="voteSelectedComment">Vote</button>
+                          </div>
+                          <div class="control">
+                            <button id="ignore" class="button is-danger" @click.prevent="ignoreSelectedComment">Ignore</button>
+                          </div>
                         </div>
                     </div>
                 </div>
@@ -209,7 +211,7 @@
                     <div class="column is-4 is-offset-4">
                         <div class="box">
                             <figure class="avatar">
-                                <img src="img/sc2.png" width=128>
+                                <img src="img/sc2.png">
                             </figure>
                             <form>
                                 <a :href="loginUrl" class="button is-block is-info is-large">Login</a>
@@ -228,7 +230,8 @@
     </section>
 
     <!-- Starts the application -->
-    <script src="js/app.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="js/bulma-extensions.js"></script>
 </body>
 
 </html>
