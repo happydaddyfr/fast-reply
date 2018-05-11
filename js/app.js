@@ -143,7 +143,6 @@ var vm = new Vue({
 			$('.card').removeClass('active');
 			$('#msg-card-' + msg.id).addClass('active');
 			$('.message .avatar img').attr("src", "http://img.busy.org/@" + msg.from);
-			$('.message .subject').text(msg.subject);
 			var msg_body = '<p>' +
 				this.$options.filters.markdownToHTML(msg.content) +
 				'</p>';

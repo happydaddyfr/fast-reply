@@ -151,7 +151,12 @@
                                 </button>
                             </div>
                             <div>
-                                <strong><span class="subject"></span></strong>
+                                <span v-if="selectedComment" class="msg-attachment">
+                                    <a target="_blank" :href="steemitUrl(selectedComment.url)">
+                                        <i class="fa fa-paperclip"></i>
+                                    </a>
+                                </span>
+                                <span v-if="selectedComment" class="subject"><strong>{{ selectedComment.subject }}</strong></span>
                             </div>
                             <hr>
                             <div class="content">
