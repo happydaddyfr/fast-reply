@@ -13,3 +13,13 @@ h3 {
 .low-reputation {
 	background: lightyellow;
 }
+
+#vm {
+	max-height: 100vh;
+}
+
+#message-feed, #message-pane {
+	padding-top: 90px;
+	overflow-y: scroll;
+	max-height: 100vh;
+}

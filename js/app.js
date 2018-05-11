@@ -61,13 +61,6 @@ var vm = new Vue({
 			id: null,
 			title: null
 		},
-		paginate: {		// TODO: Pagination state
-			pointer: {
-				start: 1,
-				end: 10
-			},
-			total: 0
-		},
 		// init with a default vote value of 100%
 		vote: 100,		// Default value for voting percentage
 		dialog: null,	// Message for the user
@@ -231,9 +224,6 @@ var vm = new Vue({
 			// empty the current inbox
 			this.messages = [];
 
-			// TODO adapt pagination values
-			this.paginate = {};
-
 			// reload inbox with the new data
 			let pos = 0;
 			for (var i = 0; i < this.comments.length; i++) {
@@ -252,11 +242,6 @@ var vm = new Vue({
 						url : comment.url,
 						permlink: comment.permlink
 					};
-
-					if (this.messages.length >= 10) {
-						// TODO: Only keep 10 most recent comments until pagination is ready
-						break;
-					}
 				}
 			}
 
