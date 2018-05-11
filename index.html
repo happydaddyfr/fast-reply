@@ -135,19 +135,19 @@
                                 <img src="https://placehold.it/128x128">
                             </div>
                             <div class="address">
-                                <div class="name">
-                                    <a :href="'https://www.steemit.com/@' + (selectedComment ? selectedComment.from : 'fast-reply')">
-                                        @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <div v-if="selectedComment" class="name">
+                                    <a target="_blank" :href="'https://www.steemit.com/@' + (selectedComment.from)">
+                                        @{{ selectedComment.from }} ({{ parseInt(selectedComment.reputation) }})
                                     </a>
                                 </div>
-                                <button @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
-                                    Follow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <button v-if="selectedComment" @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
+                                    Follow @{{ selectedComment.from }}
                                 </button>
-                                <button @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
-                                    Unfollow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <button v-if="selectedComment" @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
+                                    Unfollow @{{ selectedComment.from }}
                                 </button>
-                                <button @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
-                                    Ignore @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <button v-if="selectedComment" @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
+                                    Ignore @{{ selectedComment.from }}
                                 </button>
                             </div>
                             <div>
