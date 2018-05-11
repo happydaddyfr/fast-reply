@@ -158,10 +158,14 @@ var vm = new Vue({
 			this.selectedComment = msg;
 			this.vote = $.cookie("vote%");
 		},
-    	changeVote: function() {
-			this.vote = $('#vote-slider')[0].value;
+    	setVote: function(value) {
+			this.vote = value;
 			//console.log('Changing vote value to ' + this.vote);
 			$.cookie("vote%", this.vote, { expires: 7, path: '/' });
+    	},
+    	changeVote: function() {
+			let value = $('#vote-slider')[0].value;
+			this.setVote(value);
     	},
     	changeFilter: function(articleId, articleTitle) {
     		this.filter = {
