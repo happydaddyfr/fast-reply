@@ -159,7 +159,9 @@
                                 <span v-if="selectedComment" class="subject"><strong>{{ selectedComment.subject }}</strong></span>
                             </div>
                             <hr>
-                            <div class="content">
+                            <div v-if="selectedComment" 
+                                class="content" 
+                                v-html="$options.filters.markdownToHTML(selectedComment.content)">
                             </div>
                         </div>
                     </div>
