@@ -349,6 +349,7 @@ var vm = new Vue({
 			if (this.selectedComment) {
 				this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
 				this.removeComment(this.selectedComment.id);
+				this.loadMessages();
 			} else {
 				alert('No comment selected');
 			}
@@ -365,6 +366,7 @@ var vm = new Vue({
 						this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
 					}
 					this.removeComment(this.selectedComment.id);
+					this.loadMessages();
 				}
 			} else {
 				alert('No comment selected');
