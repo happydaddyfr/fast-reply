@@ -171,13 +171,14 @@
                           <div class="control">
                             <input id="vote-slider" class="slider is-fullwidth is-info is-large" step="1" min="0" max="100" :value="vote" @change.prevent="changeVote" type="range">
                             <div class="buttons has-addons is-centered">
-                                <span class="button is-large" :class="{ 'is-selected' : (vote == 1), 'is-info' : (vote == 1)     }" @click.prevent="setVote(1)"   >1%</span>
-                                <span class="button is-large" :class="{ 'is-selected' : (vote == 5), 'is-info' : (vote == 5)     }" @click.prevent="setVote(5)"   >5%</span>
-                                <span class="button is-large" :class="{ 'is-selected' : (vote == 10), 'is-info' : (vote == 10)   }" @click.prevent="setVote(10)"  >10%</span>
-                                <span class="button is-large" :class="{ 'is-selected' : (vote == 25), 'is-info' : (vote == 25)   }" @click.prevent="setVote(25)"  >25%</span>
-                                <span class="button is-large" :class="{ 'is-selected' : (vote == 50), 'is-info' : (vote == 50)   }" @click.prevent="setVote(50)"  >50%</span>
-                                <span class="button is-large" :class="{ 'is-selected' : (vote == 75), 'is-info' : (vote == 75)   }" @click.prevent="setVote(75)"  >75%</span>
-                                <span class="button is-large" :class="{ 'is-selected' : (vote == 100), 'is-info' : (vote == 100) }" @click.prevent="setVote(100)" >100%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 0.5),  'is-info' : (vote == 0.5)   }" @click.prevent="setVote(0.5)" >0.5%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 1),    'is-info' : (vote == 1)     }" @click.prevent="setVote(1)"   >1%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 5),    'is-info' : (vote == 5)     }" @click.prevent="setVote(5)"   >5%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 10),   'is-info' : (vote == 10)    }" @click.prevent="setVote(10)"  >10%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 25),   'is-info' : (vote == 25)    }" @click.prevent="setVote(25)"  >25%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 50),   'is-info' : (vote == 50)    }" @click.prevent="setVote(50)"  >50%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 75),   'is-info' : (vote == 75)    }" @click.prevent="setVote(75)"  >75%</span>
+                                <span class="button is-large" :class="{ 'is-selected' : (vote == 100),  'is-info' : (vote == 100)   }" @click.prevent="setVote(100)" >100%</span>
                             </div>
                           </div>
                         </div>
