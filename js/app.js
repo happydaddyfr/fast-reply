@@ -5,7 +5,6 @@ sc2.init({
 	callbackURL: 'http://localhost:8080/steemconnect/', // Dev localhost URL
 	//callbackURL: 'http://fast-reply.surge.sh/steemconnect/',  // Live demo URL
 	scope: ['vote', 'comment', 'custom_json'],
-	//access: $.cookie("access_token")  // requires latest version // use `npm i sc2-sdk --save`
 });
 
 var emptyIgnoreList = function() {
@@ -158,9 +157,9 @@ var vm = new Vue({
 			this.vote = $.cookie("vote%");
 		},
     	changeVote: function() {
-    	  this.vote = $('#vote-slider')[0].value;
-    	  //console.log('Changing vote value to ' + this.vote);
-    	  $.cookie("vote%", this.vote, { expires: 7, path: '/' });
+			this.vote = $('#vote-slider')[0].value;
+			//console.log('Changing vote value to ' + this.vote);
+			$.cookie("vote%", this.vote, { expires: 7, path: '/' });
     	},
     	changeFilter: function(articleId, articleTitle) {
     		this.filter = {
@@ -169,13 +168,15 @@ var vm = new Vue({
     		};
     	},
 	    createDialog: function(type, data, timeout) {
-	      this.dialog = {type: type, data: data}
-	      if(typeof timeout !== "undefined") {
-	      	setTimeout(function() { vm.deleteDialog() }, 5000); 
-	      }
+	    	// Display a message with the given type
+	    	// If a timeout is provided (optional) the dialog will close automatically after that duration (in milliseconds)
+	      	this.dialog = {type: type, data: data}
+	      	if(typeof timeout !== "undefined") {
+	      		setTimeout(function() { vm.closeDialog() }, timeout);
+	      	}
 	    },
-	    deleteDialog: function() {
-	      this.dialog = null
+	    closeDialog: function() {
+	      	this.dialog = null
 	    },
 		reload: function() {
 			var name = this.username;

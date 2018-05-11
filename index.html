@@ -95,7 +95,7 @@
                 <div class="column is-4 messages hero is-fullheight" id="message-feed">
                     <div class="inbox-messages" id="inbox-messages">
                        <div v-if="dialog != null" class="notification" :class="dialog.type">
-                          <button class="delete" @click.prevent="deleteDialog"></button>
+                          <button class="delete" @click.prevent="closeDialog"></button>
                           {{ dialog.data }}
                         </div>
                         <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click="showMessage(msg)" :data-preview-id="msg.id">
