@@ -347,6 +347,20 @@ var vm = new Vue({
 					alert('Comment is empty');
 				} else {
 					this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
+					this.removeComment(this.selectedComment.id);
+					this.loadMessages();
+				}
+			} else {
+				alert('No comment selected');
+			}
+		},
+		voteAndReplyToSelectedComment: function() {
+			if (this.selectedComment) {
+				let body = $('.message .control .reply').val();
+				if (body.length == 0) {
+					alert('Comment is empty');
+				} else {
+					this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
 					if (this.vote > 0) {
 						// If vote is defined, also vote on the comment
 						this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
