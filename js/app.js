@@ -18,6 +18,7 @@ var emptyIgnoreList = function() {
 var vm = new Vue({
 	el: '#vm',
 	created() {
+		let app = this;
 	  	console.log('VueJS #vm initialized');
 
 		console.log('Load settings');	  
@@ -38,9 +39,9 @@ var vm = new Vue({
 				//console.log('/me', err, result); // DEBUG
 				if (!err) {
 					// Fill the steemconnect placeholder with results
-					vm.$data.steemconnect.user = result.account;
-					vm.$data.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
-					vm.$data.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image'];
+					app.steemconnect.user = result.account;
+					app.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
+					app.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image'];
 				}
 			});
 		};
@@ -132,6 +133,7 @@ var vm = new Vue({
 	},
 	methods: {
 		logout: function() {
+			let app = this;
 			sc2.revokeToken(function(err, result) {
 				console.log('You successfully logged out', err, result);
 				// Remove all cookies
@@ -139,8 +141,8 @@ var vm = new Vue({
 				$.removeCookie("username", { path: '/' });
 				$.removeCookie("expires_in", { path: '/' });
 				// Reset all steemconnect local data
-				for (var key in this.steemconnect) {
-					this.steemconnect[key] = null;
+				for (var key in app.steemconnect) {
+					app.steemconnect[key] = null;
 				}
 			});
 		},
@@ -171,8 +173,9 @@ var vm = new Vue({
 	    	// Display a message with the given type
 	    	// If a timeout is provided (optional) the dialog will close automatically after that duration (in milliseconds)
 	      	this.dialog = {type: type, data: data}
+	      	let app = this;
 	      	if(typeof timeout !== "undefined") {
-	      		setTimeout(function() { vm.closeDialog() }, timeout);
+	      		setTimeout(function() { app.closeDialog() }, timeout);
 	      	}
 	    },
 	    closeDialog: function() {
