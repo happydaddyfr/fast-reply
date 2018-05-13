@@ -14,6 +14,36 @@ var emptyIgnoreList = function() {
 	};
 }
 
+// https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
+$.fn.extend({
+    insertAtCaret: function(myValue){
+        var obj;
+        if( typeof this[0].name !='undefined' ) obj = this[0];
+        else obj = this;
+
+        if (false) {    //$.browser.msie // Deprecated jquery function
+            obj.focus();
+            sel = document.selection.createRange();
+            sel.text = myValue;
+            obj.focus();
+        }
+        else if (true) {    // $.browser.mozilla || $.browser.webkit
+            var startPos = obj.selectionStart;
+            var endPos = obj.selectionEnd;
+            var scrollTop = obj.scrollTop;
+            obj.value = obj.value.substring(0, startPos)+myValue+obj.value.substring(endPos,obj.value.length);
+            obj.focus();
+            obj.selectionStart = startPos + myValue.length;
+            obj.selectionEnd = startPos + myValue.length;
+            obj.scrollTop = scrollTop;
+        } else {
+            obj.value += myValue;
+            obj.focus();
+        }
+    }
+})
+
+
 // Initialize the Vue Model    
 var vm = new Vue({
 	el: '#vm',
@@ -152,12 +182,16 @@ var vm = new Vue({
 			$('.card').removeClass('active');
 			$('#msg-card-' + msg.id).addClass('active');
 
-			$('.message .control .reply').val('@' + msg.from + ' ');
-			$('.message .control .reply').focus();
+			$('#reply').val('@' + msg.from + ' ');
+			$('#reply').focus();
 			
 			this.selectedComment = msg;
 			this.vote = $.cookie("vote%");
 		},
+        addEmoji: function(emoji) {
+            $('#reply').insertAtCaret(' ' + emoji);
+            $('#reply').focus();
+        },
     	setVote: function(value) {
 			this.vote = value;
 			//console.log('Changing vote value to ' + this.vote);

@@ -68,7 +68,7 @@
                             </a>
                             <div class="navbar-dropdown">
                                 <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
-                                <a v-for="article in articles" class="navbar-item" v-bind:id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
+                                <a v-for="article in articles" class="navbar-item" :id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
                                     {{ article.title | truncate(50) }}
                                 </a>
                             </div>
@@ -188,24 +188,39 @@
                         <div class="field">
                           <label class="label">Your Fast Reply</label>
                           <div class="control">
-                            <textarea class="textarea reply" type="text" placeholder="Reply here..."></textarea>
+                            <textarea id="reply" class="textarea reply" type="text" placeholder="Reply here..."></textarea>
                           </div>
                         </div>
-                        <div class="field is-grouped is-grouped-centered">
+                        <div class="buttons has-addons is-grouped is-grouped-left">
+                            <span class="button" @click.prevent="addEmoji('👍')">👍</span>
+                            <span class="button" @click.prevent="addEmoji('😀')">😀</span>
+                            <span class="button" @click.prevent="addEmoji('😘')">😘</span>
+                            <span class="button" @click.prevent="addEmoji('😍')">😍</span>
+                            <span class="button" @click.prevent="addEmoji('😆')">😆</span>
+                            <span class="button" @click.prevent="addEmoji('😎')">😎</span>
+                            <span class="button" @click.prevent="addEmoji('😅')">😅</span>
+                            <span class="button" @click.prevent="addEmoji('😂')">😂</span>
+                            <span class="button" @click.prevent="addEmoji('😱')">😱</span>
+                            <span class="button" @click.prevent="addEmoji('🙏')">🙏</span>
+                            <span class="button" @click.prevent="addEmoji('🙄')">🙄</span>
+                            <span class="button" @click.prevent="addEmoji('😭')">😭</span>
+                            <span class="button" @click.prevent="addEmoji('🇧🇪')">🇧🇪</span>
+                        </div>
+                        <div class="field is-grouped is-grouped-right">
                           <!--div class="control">
                             <button disabled class="button is-large is-info" @click.prevent="shareSelectedComment">Share</button>
                           </div-->
                           <div class="control">
-                            <button class="button is-large is-link" @click.prevent="replyToSelectedComment">Reply</button>
+                            <button class="button is-large is-link is-rounded" @click.prevent="replyToSelectedComment">Reply</button>
                           </div>                          
                           <div class="control">
-                            <button class="button is-large is-link" @click.prevent="voteAndReplyToSelectedComment">Vote and Reply</button>
+                            <button class="button is-large is-success is-rounded" @click.prevent="voteAndReplyToSelectedComment">Vote and Reply</button>
                           </div>
                           <div class="control">
-                            <button id="vote" class="button is-large is-warning" @click.prevent="voteSelectedComment">Vote</button>
+                            <button id="vote" class="button is-large is-warning is-rounded" @click.prevent="voteSelectedComment">Vote</button>
                           </div>
                           <div class="control">
-                            <button id="ignore" class="button is-large is-danger" @click.prevent="ignoreSelectedComment">Ignore</button>
+                            <button id="ignore" class="button is-large is-danger is-rounded" @click.prevent="ignoreSelectedComment">Ignore</button>
                           </div>
                         </div>
                     </div>
