@@ -135,7 +135,7 @@ var vm = new Vue({
 		  	} 
 		},
 		filter(newFilter, oldFilter) {
-			console.log("New filter selected: " + newFilter);
+			//console.log("New filter selected: " + newFilter);
 			this.loadMessages();
 		}
 	},
