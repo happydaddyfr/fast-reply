@@ -93,7 +93,7 @@ var vm = new Vue({
 		},
 		// init with a default vote value of 100%
 		vote: 100,		// Default value for voting percentage
-        voteQuickSelector: [0.5, 1, 25, 10, 25, 50, 75, 100],
+        voteQuickSelector: [0.5, 1, 5, 10, 25, 50, 75, 100],
         emojiQuickSelector: ['👍', '😀', '😘', '😍', '😆', '😎', '😅', '😂', '😱', '🙏', '🙄', '😭', '🇧🇪'],
 		dialog: null,	// Message for the user
 		ignore: emptyIgnoreList(),
