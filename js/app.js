@@ -14,6 +14,7 @@ var emptyIgnoreList = function() {
 	};
 }
 
+// Insert content (myValue) inside input, textarea element at cursor position
 // https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
 $.fn.extend({
     insertAtCaret: function(myValue){
@@ -76,28 +77,39 @@ var vm = new Vue({
 			});
 		};
 	},
+    mounted() {
+        const DURATION_COMMENT = 21 * 1000;
+        const DURATION_VOTE = 5 * 1000;
+
+        // Start the schedulers
+        this.startScheduler(this.pendingComments, DURATION_COMMENT);
+        this.startScheduler(this.pendingVotes, DURATION_VOTE);
+    },
 	data: {
-		loginUrl: sc2.getLoginURL(),
-		steemconnect: {
-			// Need to define an object that will be observed for changes by Vue.js
-			user: null,
-			metadata: null,
-			profile_image: null
-		},
-		messages: null,	// All comments currently shown by the app
-		comments: null, // All raw comments
-		articles: null, // List of all the filters for articles
-		filter: {		// Selected filter
-			id: null,
-			title: null
-		},
-		// init with a default vote value of 100%
-		vote: 100,		// Default value for voting percentage
+        loginUrl: sc2.getLoginURL(),
+        steemconnect: {
+            // Need to define an object that will be observed for changes by Vue.js
+            user: null,
+            metadata: null,
+            profile_image: null
+        },
+        messages: null,	// All comments currently shown by the app
+        comments: null, // All raw comments
+        articles: null, // List of all the filters for articles
+        filter: {		// Selected filter
+            id: null,
+            title: null
+        },
+        // init with a default vote value of 100%
+        vote: 100,		// Default value for voting percentage
         voteQuickSelector: [0.5, 1, 5, 10, 25, 50, 75, 100],
         emojiQuickSelector: ['👍', '😀', '😘', '😍', '😆', '😎', '😅', '😂', '😱', '🙏', '🙄', '😭', '🇧🇪'],
-		dialog: null,	// Message for the user
-		ignore: emptyIgnoreList(),
-		selectedComment: null
+        dialog: null,	// Message for the user
+        ignore: emptyIgnoreList(),
+        selectedComment: null,
+        // Handle SteemConnect operation scheduling
+        pendingVotes: [],
+        pendingComments: []
 	},
 	computed: { 
 		username() { 
@@ -108,7 +120,13 @@ var vm = new Vue({
 		},
     	hasComments() {
     		return (this.messages != null && this.messages.length > 0);
-    	}
+    	},
+        pending() {
+		    return {
+		        comments: this.pendingComments.length,
+		        votes: this.pendingVotes.length
+            }
+        }
 	}, 
 	watch: { 
 		username(newUsername, oldUsername) { 
@@ -297,6 +315,18 @@ var vm = new Vue({
 			}
 			
 		},
+        startScheduler: function(pendingStuff, timeout) {
+            let app = this;
+            setTimeout(function() {
+                // Check if there is something pending
+                if (pendingStuff.length > 0) {
+                    // Execute action
+                    pendingStuff[0]();
+                }
+                // Recursive call
+                app.startScheduler(pendingStuff, timeout);
+            }, timeout);
+        },
 
 		/// IGNORE LIST HELPERS
 
@@ -428,32 +458,36 @@ var vm = new Vue({
 		// STEEM CONNECT HELPERS
 
 		voteComment: function(author, permlink, weight) {
-	      app = this;
-	      sc2.vote(this.steemconnect.user.name, author, permlink, weight, function (err, res) {
-	        if (!err) {
-	          app.createDialog("is-success", 'You successfully voted for @' + author + '/' + permlink, 2000);
-	          console.log(app.dialog.data, err, res);
-	        } else {
-	          console.log(err);
-	          app.createDialog("is-danger", err);
-	        }
-	      });
+	      let app = this;
+	      this.pendingVotes.push(function() {
+              sc2.vote(app.steemconnect.user.name, author, permlink, weight, function (err, res) {
+                  if (!err) {
+                      app.pendingVotes.shift();
+                      console.log('You successfully voted for @' + author + '/' + permlink, err, res);
+                  } else {
+                      console.log(err);
+                      app.createDialog("is-danger", err);
+                  }
+              });
+          });
 	    },
 
 		replyComment: function(author, permlink, body) {
-	      app = this;
-	      sc2.comment(author, permlink, this.steemconnect.user.name, permlink+'-'+ Date.now(), '', body, {app: 'fast-reply'}, function (err, res) {
-	        if (!err) {
-	          app.createDialog("is-success", 'You successfully commented post @' + author + '/' + permlink, 2000);
-	          console.log(app.dialog.data, err, res);
-	        } else {
-	          console.log(err);
-	          app.createDialog("is-danger", err, 5000);
-	        }
-	      });
+	      let app = this;
+	      this.pendingComments.push(function() {
+              sc2.comment(author, permlink, app.steemconnect.user.name, permlink+'-'+ Date.now(), '', body, {app: 'fast-reply'}, function (err, res) {
+                if (!err) {
+                  app.pendingComments.shift();
+                  console.log('You successfully commented post @' + author + '/' + permlink, err, res);
+                } else {
+                  console.log(err);
+                  app.createDialog("is-danger", err, 5000);
+                }
+              });
+          });
 	    },
 		shareComment: function(author, permlink) {
-	      app = this;
+	      let app = this;
 	      sc2.reblog(this.steemconnect.user.name, author, permlink, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-success", 'You successfully rebloged post @' + author + '/' + permlink, 2000);
@@ -465,7 +499,7 @@ var vm = new Vue({
 	      });
 	    },
 	    followAccount: function(username) {
-	      app = this;
+	      let app = this;
 	      sc2.follow(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-success", "You successfully followed @" + username, 2000);
@@ -477,7 +511,7 @@ var vm = new Vue({
 	      });
 	    },
 	    unfollowAccount: function(username) {
-	      app = this;
+	      let app = this;
 	      sc2.unfollow(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-warning", "You successfully unfollowed @" + username, 2000);
@@ -489,7 +523,7 @@ var vm = new Vue({
 	      });
 	    },
 	    ignoreAccount: function(username) {
-	      app = this;
+	      let app = this;
 	      sc2.ignore(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-warning", "You successfully ignored @" + username, 2000);

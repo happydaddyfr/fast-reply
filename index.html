@@ -7,7 +7,7 @@
     <meta id="viewport" name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     <link rel="stylesheet" href="css/sc2.css">
 
@@ -75,6 +75,14 @@
                         </div>                        
                     </div>
                     <div class="navbar-end">
+                        <a class="navbar-item">
+                            <span>{{ pending.comments }} <i class="fas fa-comment-alt"></i></span>
+                        </a>
+
+                        <a class="navbar-item">
+                            <span>{{ pending.votes }} <i class="fas fa-chevron-circle-up"></i></span>
+                        </a>
+
                         <a class="navbar-item" @click.prevent="reload">
                             <span><i class="fa fa-refresh"></i> Reload</span>
                         </a>
