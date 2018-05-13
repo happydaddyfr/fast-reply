@@ -69,7 +69,7 @@
                             <div class="navbar-dropdown">
                                 <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
                                 <a v-for="article in articles" class="navbar-item" :id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
-                                    {{ article.title | truncate(50) }}
+                                    {{ filterCounters[article.id] }} x {{ article.title | truncate(50) }}
                                 </a>
                             </div>
                         </div>                        

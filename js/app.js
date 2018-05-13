@@ -108,6 +108,8 @@ var vm = new Vue({
         ignore: emptyIgnoreList(),
         selectedComment: null,
         // Handle SteemConnect operation scheduling
+        // The following array contain function ready to be executed
+        // See https://stackoverflow.com/a/13812956/957103
         pendingVotes: [],
         pendingComments: []
 	},
@@ -126,6 +128,18 @@ var vm = new Vue({
 		        comments: this.pendingComments.length,
 		        votes: this.pendingVotes.length
             }
+        },
+        filterCounters() {
+		    let app = this;
+		    let counters = {};
+
+		    app.articles.forEach(function(article) {
+                counters[article.id] = app.comments.filter(function(comment) {
+                    return comment.rootId === article.id;
+                }).length;
+            });
+
+		    return counters;
         }
 	}, 
 	watch: { 
