@@ -109,12 +109,14 @@
                                     </a>
 
                                     <span class="msg-attachment">&nbsp;<a @click="addCommentToIgnore(msg.id)"><i class="fa fa-window-close" style="color:red"></i></a></span>
-                                    <span class="msg-attachment">{{ msg.payout }} <i class="fa fa-dollar"></i></span>
                                     <span class="msg-timestamp">{{ msg.timestamp | date }}</span>
                                 </div>
                                 <div class="msg-subject">
                                     <span class="msg-subject"><strong>{{ msg.subject }}</strong></span>
-                                    <span class="msg-attachment"><a target="_blank" :href="$options.filters.steemit(msg.url)"><i class="fa fa-paperclip"></i></a></span>
+                                    <span class="msg-attachment">
+                                        ({{ msg.payout }} <i class="fa fa-dollar">)</i>&nbsp;
+                                        <a target="_blank" :href="$options.filters.steemit(msg.url)"><i class="fa fa-paperclip"></i></a>
+                                    </span>
                                 </div>
                                 <div class="msg-snippet">
                                     <!-- Balise v-html : https://fr.vuejs.org/v2/guide/syntax.html#Interpretation-du-HTML -->
@@ -177,7 +179,9 @@
                                 <span v-for="votePercent in voteQuickSelector"
                                       class="button is-large"
                                       :class="{ 'is-selected' : (vote == votePercent),  'is-info' : (vote == votePercent)   }"
-                                      @click.prevent="setVote(votePercent)" >{{votePercent}}%</span>
+                                      @click.prevent="setVote(votePercent)" >
+                                    {{votePercent}}%
+                                </span>
                             </div>
                           </div>
                         </div>
@@ -188,8 +192,12 @@
                             <textarea id="reply" class="textarea reply" type="text" placeholder="Reply here..."></textarea>
                           </div>
                         </div>
-                        <div class="buttons has-addons is-grouped is-grouped-left">
-                            <span v-for="emoji in emojiQuickSelector" class="button" @click.prevent="addEmoji(emoji)">{{emoji}}</span>
+                        <div class="buttons has-addons is-grouped is-centered">
+                            <span v-for="emoji in emojiQuickSelector"
+                                  class="button is-large"
+                                  @click.prevent="addEmoji(emoji)">
+                                {{emoji}}
+                            </span>
                         </div>
                         <div class="field is-grouped is-grouped-right">
                           <!--div class="control">
