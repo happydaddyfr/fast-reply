@@ -106,8 +106,9 @@
                                     
                                     <a target="_blank" :href="$options.filters.profile(msg.from)">
                                         <span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span>
-                                    </a>                                    
-                                    
+                                    </a>
+
+                                    <span class="msg-attachment">&nbsp;<a @click="addCommentToIgnore(msg.id)"><i class="fa fa-window-close" style="color:red"></i></a></span>
                                     <span class="msg-attachment">{{ msg.payout }} <i class="fa fa-dollar"></i></span>
                                     <span class="msg-timestamp">{{ msg.timestamp | date }}</span>
                                 </div>
