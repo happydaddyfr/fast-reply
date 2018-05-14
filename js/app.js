@@ -87,6 +87,7 @@ var vm = new Vue({
 					app.steemconnect.user = result.account;
 					app.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
 					app.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image'];
+					app.updateVotingPower();
 				}
 			});
 		};
@@ -125,7 +126,8 @@ var vm = new Vue({
         // The following array contain function ready to be executed
         // See https://stackoverflow.com/a/13812956/957103
         pendingVotes: [],
-        pendingComments: []
+        pendingComments: [],
+        votingPower: 0
 	},
 	computed: { 
 		username() { 
@@ -226,6 +228,18 @@ var vm = new Vue({
 				}
 			});
 		},
+        updateVotingPower() {
+		    let app = this;
+		    // https://steemit.com/utopian-io/@stoodkev/steem-js-for-dummies-1-how-to-calculate-the-current-voting-power
+            steem.api.getAccounts([app.username], function(err, response){
+                var secondsago = (new Date - new Date(response[0].last_vote_time + "Z")) / 1000;
+                var vpow = response[0].voting_power + (10000 * secondsago / 432000);
+                vpow = Math.min(vpow / 100, 100).toFixed(2);
+                console.log("VP = " + vpow + "%");
+                app.votingPower = vpow;
+            });
+        }
+		,
 		showMessage: function(msg) {
 			// TODO replace by a VueJS component ?
 			$('#message-pane').removeClass('is-hidden');
@@ -352,6 +366,7 @@ var vm = new Vue({
                 if (pendingStuff.length > 0) {
                     // Execute action
                     pendingStuff[0]();
+                    app.updateVotingPower();
                 }
                 // Recursive call
                 app.startScheduler(pendingStuff, timeout);
