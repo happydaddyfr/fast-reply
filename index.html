@@ -6,7 +6,8 @@
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     <link rel="stylesheet" href="css/sc2.css">
 
@@ -17,7 +18,8 @@
     <script src="js/sc2.min.js"></script>
     <script src="js/SC2Utils.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/vue.js"></script>           <!-- DEV  -->
+    <!--script src="js/vue.min.js"></script-->  <!-- PROD -->
     <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
@@ -53,26 +55,37 @@
 
 <body>
     <div id="vm">
-        <section v-if=" steemconnect.user != null">
-            <nav class="navbar has-shadow">
+        <section v-if="steemconnect.user != null">
+            <nav class="navbar has-shadow is-fixed-top">
                 <div class="container">
                     <div class="navbar-brand">
                         <a class="navbar-item" href="#">
-                          <img src="img/fast-reply-icon.png" alt="Waiting no more"> Fast-Reply
+                          <img src="img/fast-reply-icon.png" alt="Waiting no more">Fast-Reply
                         </a>
                         <div class="navbar-item has-dropdown is-hoverable">
                             <a class="navbar-link">
-                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter.title | trunctate(50) }}</em></span> 
+                                <span class="compose"><i class="fa fa-filter"></i> Filter <em v-if="filter.id">: {{ filterCounters[filter.id] }} x {{ filter.title | truncate(50) }}</em></span>
                             </a>
                             <div class="navbar-dropdown">
                                 <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
-                                <a v-for="article in articles" class="navbar-item" v-bind:id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
-                                    {{ article.title | truncate(50) }}
+                                <a v-for="article in articles" class="navbar-item" :id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
+                                    {{ filterCounters[article.id] }} x {{ article.title | truncate(50) }}
                                 </a>
                             </div>
                         </div>                        
                     </div>
                     <div class="navbar-end">
+                        <a class="navbar-item">
+                            <span v-if="comments">{{ comments.length }} <i class="fa fa-inbox"></i></span>
+                        </a>
+
+                        <a class="navbar-item">
+                            <span>{{ pending.comments }} <i class="fas fa-comment-alt"></i></span>
+                        </a>
+                        <a class="navbar-item">
+                            <span>{{ pending.votes }} <i class="fas fa-chevron-circle-up"></i></span>
+                        </a>
+
                         <a class="navbar-item" @click.prevent="reload">
                             <span><i class="fa fa-refresh"></i> Reload</span>
                         </a>
@@ -81,8 +94,8 @@
                                 {{ username }}
                             </a>
                             <div class="navbar-dropdown">
-                                <a href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
-                                <a :href="profile(username)" class="navbar-item">Steemit Profile</a>
+                                <a target="_blank" href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
+                                <a target="_blank" :href="$options.filters.profile(username)" class="navbar-item">Steemit Profile</a>
                                 <a class="navbar-item" @click.prevent="clearIgnoreList">Clear ignore list</a>
                                 <hr class="navbar-divider">
                                 <a @click.prevent="logout" href="#" class="navbar-item">Logout</a>
@@ -95,23 +108,26 @@
                 <div class="column is-4 messages hero is-fullheight" id="message-feed">
                     <div class="inbox-messages" id="inbox-messages">
                        <div v-if="dialog != null" class="notification" :class="dialog.type">
-                          <button class="delete" @click.prevent="deleteDialog"></button>
+                          <button class="delete" @click.prevent="closeDialog"></button>
                           {{ dialog.data }}
                         </div>
-                        <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click.prevent="showMessage(msg)" :data-preview-id="msg.id">
+                        <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click="showMessage(msg)" :data-preview-id="msg.id">
                             <div class="card-content" :class="[msg.reputation < 25 ? 'low-reputation': '']">
                                 <div class="msg-header">
                                     
-                                    <a target="_blank" :href="profile(msg.from)">
+                                    <a target="_blank" :href="$options.filters.profile(msg.from)">
                                         <span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span>
-                                    </a>                                    
-                                    
-                                    <span class="msg-attachment">{{ msg.payout }} <i class="fa fa-dollar"></i></span>
-                                    <span class="msg-timestamp">{{ formatDate(msg.timestamp) }}</span>
+                                    </a>
+
+                                    <span class="msg-attachment">&nbsp;<a @click="addCommentToIgnore(msg.id)"><i class="fa fa-window-close" style="color:red"></i></a></span>
+                                    <span class="msg-timestamp">{{ msg.timestamp | date }}</span>
                                 </div>
                                 <div class="msg-subject">
                                     <span class="msg-subject"><strong>{{ msg.subject }}</strong></span>
-                                    <span class="msg-attachment"><a target="_blank" :href="steemitUrl(msg.url)"><i class="fa fa-paperclip"></i></a></span>
+                                    <span class="msg-attachment">
+                                        ({{ msg.payout }} <i class="fa fa-dollar">)</i>&nbsp;
+                                        <a target="_blank" :href="$options.filters.steemit(msg.url)"><i class="fa fa-paperclip"></i></a>
+                                    </span>
                                 </div>
                                 <div class="msg-snippet">
                                     <!-- Balise v-html : https://fr.vuejs.org/v2/guide/syntax.html#Interpretation-du-HTML -->
@@ -131,30 +147,37 @@
                 <div class="column is-8 message hero is-fullheight" id="message-pane" v-show="hasComments">
                     <div class="box message-preview">
                         <div class="top">
-                            <div class="avatar">
-                                <img src="https://placehold.it/128x128">
+                            <div v-if="selectedComment" class="avatar">
+                                <img :src="$options.filters.avatar(selectedComment.from)">
                             </div>
                             <div class="address">
-                                <div class="name">
-                                    <a :href="'https://www.steemit.com/@' + (selectedComment ? selectedComment.from : 'fast-reply')">
-                                        @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <div v-if="selectedComment" class="name">
+                                    <a target="_blank" :href="'https://www.steemit.com/@' + (selectedComment.from)">
+                                        @{{ selectedComment.from }} ({{ parseInt(selectedComment.reputation) }})
                                     </a>
                                 </div>
-                                <button @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
-                                    Follow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <button v-if="selectedComment" @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
+                                    Follow @{{ selectedComment.from }}
                                 </button>
-                                <button @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
-                                    Unfollow @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <button v-if="selectedComment" @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
+                                    Unfollow @{{ selectedComment.from }}
                                 </button>
-                                <button @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
-                                    Ignore @{{ selectedComment ? selectedComment.from : 'fast-reply' }}
+                                <button v-if="selectedComment" @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
+                                    Ignore @{{ selectedComment.from }}
                                 </button>
                             </div>
                             <div>
-                                <strong><span class="subject"></span></strong>
+                                <span v-if="selectedComment" class="msg-attachment">
+                                    <a target="_blank" :href="$options.filters.steemit(selectedComment.url)">
+                                        <i class="fa fa-paperclip"></i>
+                                    </a>
+                                </span>
+                                <span v-if="selectedComment" class="subject"><strong>{{ selectedComment.subject }}</strong></span>
                             </div>
                             <hr>
-                            <div class="content">
+                            <div v-if="selectedComment" 
+                                class="content" 
+                                v-html="$options.filters.markdownToHTML(selectedComment.content)">
                             </div>
                         </div>
                     </div>
@@ -163,47 +186,50 @@
                           <label class="label">Your Vote ({{ vote }}%)</label>
                           <div class="control">
                             <input id="vote-slider" class="slider is-fullwidth is-info is-large" step="1" min="0" max="100" :value="vote" @change.prevent="changeVote" type="range">
+                            <div class="buttons has-addons is-centered">
+                                <span v-for="votePercent in voteQuickSelector"
+                                      class="button is-large"
+                                      :class="{ 'is-selected' : (vote == votePercent),  'is-info' : (vote == votePercent)   }"
+                                      @click.prevent="setVote(votePercent)" >
+                                    {{votePercent}}%
+                                </span>
+                            </div>
                           </div>
                         </div>
 
                         <div class="field">
                           <label class="label">Your Fast Reply</label>
                           <div class="control">
-                            <textarea class="textarea reply" type="text" placeholder="Reply here..."></textarea>
+                            <textarea id="reply" class="textarea reply" type="text" placeholder="Reply here..."></textarea>
                           </div>
                         </div>
+                        <div class="buttons has-addons is-grouped is-centered">
+                            <span v-for="emoji in emojiQuickSelector"
+                                  class="button is-large"
+                                  @click.prevent="addEmoji(emoji)">
+                                {{emoji}}
+                            </span>
+                        </div>
                         <div class="field is-grouped is-grouped-right">
+                          <!--div class="control">
+                            <button disabled class="button is-large is-info" @click.prevent="shareSelectedComment">Share</button>
+                          </div-->
                           <div class="control">
-                            <button class="button is-info" @click.prevent="shareSelectedComment">Share</button>
+                            <button class="button is-large is-link is-rounded" @click.prevent="replyToSelectedComment">Reply</button>
+                          </div>                          
+                          <div class="control">
+                            <button class="button is-large is-success is-rounded" @click.prevent="voteAndReplyToSelectedComment">Vote and Reply</button>
                           </div>
                           <div class="control">
-                            <button class="button is-link" @click.prevent="replyToSelectedComment">Vote and Reply</button>
+                            <button id="vote" class="button is-large is-warning is-rounded" @click.prevent="voteSelectedComment">Vote</button>
                           </div>
                           <div class="control">
-                            <button id="vote" class="button is-warning" @click.prevent="voteSelectedComment">Vote</button>
-                          </div>
-                          <div class="control">
-                            <button id="ignore" class="button is-danger" @click.prevent="ignoreSelectedComment">Ignore</button>
+                            <button id="ignore" class="button is-large is-danger is-rounded" @click.prevent="ignoreSelectedComment">Ignore</button>
                           </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <footer class="footer">
-                <div class="container">
-                    <div class="content has-text-centered">
-                        <p>
-                            <strong>Bulma Templates</strong> by <a href="https://github.com/dansup">Daniel Supernault</a>. The source code is licensed
-                            <a href="http://opensource.org/licenses/mit-license.php">MIT</a>.
-                        </p>
-                        <p>
-                            <a class="icon" href="https://github.com/dansup/bulma-templates">
-                              <i class="fa fa-github"></i>
-                            </a>
-                        </p>
-                    </div>
-                </div>
-            </footer>
         </section>
         <section class="hero is-success is-fullheight" v-else>
             <div class="hero-body">

@@ -5,7 +5,6 @@ sc2.init({
 	callbackURL: 'http://localhost:8080/steemconnect/', // Dev localhost URL
 	//callbackURL: 'http://fast-reply.surge.sh/steemconnect/',  // Live demo URL
 	scope: ['vote', 'comment', 'custom_json'],
-	//access: $.cookie("access_token")  // requires latest version // use `npm i sc2-sdk --save`
 });
 
 var emptyIgnoreList = function() {
@@ -15,10 +14,56 @@ var emptyIgnoreList = function() {
 	};
 }
 
+var ls = {
+    // LocalStorage : https://stackoverflow.com/questions/2010892/storing-objects-in-html5-localstorage
+    retrieve: function(key) {
+        let value = window.localStorage.getItem(key);
+        if (value) {
+            value = JSON.parse(value);
+        }
+        return value;
+    },
+    save: function(key, value) {
+        window.localStorage.setItem(key, JSON.stringify(value));
+    }
+}
+
+// Insert content (myValue) inside input, textarea element at cursor position
+// https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
+$.fn.extend({
+    insertAtCaret: function(myValue){
+        var obj;
+        if( typeof this[0].name !='undefined' ) obj = this[0];
+        else obj = this;
+
+        if (false) {    //$.browser.msie // Deprecated jquery function
+            obj.focus();
+            sel = document.selection.createRange();
+            sel.text = myValue;
+            obj.focus();
+        }
+        else if (true) {    // $.browser.mozilla || $.browser.webkit
+            var startPos = obj.selectionStart;
+            var endPos = obj.selectionEnd;
+            var scrollTop = obj.scrollTop;
+            obj.value = obj.value.substring(0, startPos)+myValue+obj.value.substring(endPos,obj.value.length);
+            obj.focus();
+            obj.selectionStart = startPos + myValue.length;
+            obj.selectionEnd = startPos + myValue.length;
+            obj.scrollTop = scrollTop;
+        } else {
+            obj.value += myValue;
+            obj.focus();
+        }
+    }
+})
+
+
 // Initialize the Vue Model    
 var vm = new Vue({
 	el: '#vm',
 	created() {
+		let app = this;
 	  	console.log('VueJS #vm initialized');
 
 		console.log('Load settings');	  
@@ -36,43 +81,51 @@ var vm = new Vue({
 		if ($.cookie("access_token") != null) {
 			sc2.setAccessToken($.cookie("access_token"));
 			sc2.me(function(err, result) {
-				console.log('/me', err, result); // DEBUG
+				//console.log('/me', err, result); // DEBUG
 				if (!err) {
 					// Fill the steemconnect placeholder with results
-					vm.$data.steemconnect.user = result.account;
-					vm.$data.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
-					vm.$data.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image'];
+					app.steemconnect.user = result.account;
+					app.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
+					app.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image'];
 				}
 			});
 		};
 	},
+    mounted() {
+        const DURATION_COMMENT = 21 * 1000;
+        const DURATION_VOTE = 5 * 1000;
+
+        // Start the schedulers
+        this.startScheduler(this.pendingComments, DURATION_COMMENT);
+        this.startScheduler(this.pendingVotes, DURATION_VOTE);
+    },
 	data: {
-		loginUrl: sc2.getLoginURL(),
-		steemconnect: {
-			// Need to define an object that will be observed for changes by Vue.js
-			user: null,
-			metadata: null,
-			profile_image: null
-		},
-		messages: null,	// All comments currently shown by the app
-		comments: null, // All raw comments
-		articles: null, // List of all the filters for articles
-		filter: {		// Selected filter
-			id: null,
-			title: null
-		},
-		paginate: {		// TODO: Pagination state
-			pointer: {
-				start: 1,
-				end: 10
-			},
-			total: 0
-		},
-		// init with a default vote value of 100%
-		vote: 100,		// Default value for voting percentage
-		dialog: null,	// Message for the user
-		ignore: emptyIgnoreList(),
-		selectedComment: null
+        loginUrl: sc2.getLoginURL(),
+        steemconnect: {
+            // Need to define an object that will be observed for changes by Vue.js
+            user: null,
+            metadata: null,
+            profile_image: null
+        },
+        messages: null,	// All comments currently shown by the app
+        comments: null, // All raw comments
+        articles: null, // List of all the filters for articles
+        filter: {		// Selected filter
+            id: null,
+            title: null
+        },
+        // init with a default vote value of 100%
+        vote: 100,		// Default value for voting percentage
+        voteQuickSelector: [0.5, 1, 5, 10, 25, 50, 75, 100],
+        emojiQuickSelector: ['👍', '😀', '😘', '😍', '😆', '😎', '😅', '😂', '😱', '🙏', '🙄', '😭', '🇧🇪'],
+        dialog: null,	// Message for the user
+        ignore: emptyIgnoreList(),
+        selectedComment: null,
+        // Handle SteemConnect operation scheduling
+        // The following array contain function ready to be executed
+        // See https://stackoverflow.com/a/13812956/957103
+        pendingVotes: [],
+        pendingComments: []
 	},
 	computed: { 
 		username() { 
@@ -83,7 +136,27 @@ var vm = new Vue({
 		},
     	hasComments() {
     		return (this.messages != null && this.messages.length > 0);
-    	}
+    	},
+        pending() {
+		    return {
+		        comments: this.pendingComments.length,
+		        votes: this.pendingVotes.length
+            }
+        },
+        filterCounters() {
+		    let app = this;
+		    let counters = {};
+
+		    if (app.articles) {
+                app.articles.forEach(function (article) {
+                    counters[article.id] = app.comments.filter(function (comment) {
+                        return comment.rootId === article.id;
+                    }).length;
+                });
+            }
+
+		    return counters;
+        }
 	}, 
 	watch: { 
 		username(newUsername, oldUsername) { 
@@ -92,39 +165,55 @@ var vm = new Vue({
 		  	} 
 		},
 		filter(newFilter, oldFilter) {
-			console.log("New filter selected: " + newFilter);
+			//console.log("New filter selected: " + newFilter);
 			this.loadMessages();
 		}
 	},
 	filters: {  // https://vuejs.org/v2/guide/filters.html
-	  truncate: function (value, length) {
-	  	// Remove words making a string larger than a given size
-	    if (!value) return '';
-	    if (value.length <= length) return value;
+		truncate: function (value, length) {
+			// Remove words making a string larger than a given size
+		if (!value) return '';
+		if (value.length <= length) return value;
 
-	    // https://stackoverflow.com/a/33379772/957103
-	    function truncateOnWord(str, limit) {
-	        var trimmable = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF';
-	        var reg = new RegExp('(?=[' + trimmable + '])');
-	        var words = str.split(reg);
-	        var count = 0;
-	        return words.filter(function(word) {
-	            count += word.length;
-	            return count <= limit;
-	        }).join('');
-	    }
+		// https://stackoverflow.com/a/33379772/957103
+		function truncateOnWord(str, limit) {
+		    var trimmable = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF';
+		    var reg = new RegExp('(?=[' + trimmable + '])');
+		    var words = str.split(reg);
+		    var count = 0;
+		    return words.filter(function(word) {
+		        count += word.length;
+		        return count <= limit;
+		    }).join('');
+		}
 
-	    return truncateOnWord(value, length) + " [...]";
-	  },
-	  markdownToHTML: function(value) {
-	  	// TODO: check if content is indeed markdown (via API)
-	  	// Transform Markdown markup into HTML
-	  	// ShowDownJS: https://github.com/showdownjs/showdown
-	  	return new showdown.Converter().makeHtml(value);
-	  }
+		return truncateOnWord(value, length) + " [...]";
+		},
+		markdownToHTML: function(value) {
+			// TODO: check if content is indeed markdown (via API)
+			// Transform Markdown markup into HTML
+			// ShowDownJS: https://github.com/showdownjs/showdown
+			return new showdown.Converter().makeHtml(value);
+		},
+		date: function(date) {
+		  // Format date from UTC to locale Date
+		  return new Date(Date.parse(date)).toLocaleDateString();
+		},
+		steemit: function(path) {
+		  return "https://www.steemit.com" + path;
+		},
+		profile: function(username) {
+		  // Creation d'un lien vers le profile steemit d'un utilisateur
+		  return "https://www.steemit.com/@" + username;
+		},
+		avatar: function(username) {
+		  // Creation d'un lien vers l'avatar (image) steem d'un utilisateur // Thanks to Busy
+		  return "http://img.busy.org/@" + username;
+		}
 	},
 	methods: {
 		logout: function() {
+			let app = this;
 			sc2.revokeToken(function(err, result) {
 				console.log('You successfully logged out', err, result);
 				// Remove all cookies
@@ -132,8 +221,8 @@ var vm = new Vue({
 				$.removeCookie("username", { path: '/' });
 				$.removeCookie("expires_in", { path: '/' });
 				// Reset all steemconnect local data
-				for (var key in this.steemconnect) {
-					this.steemconnect[key] = null;
+				for (var key in app.steemconnect) {
+					app.steemconnect[key] = null;
 				}
 			});
 		},
@@ -142,33 +231,25 @@ var vm = new Vue({
 			$('#message-pane').removeClass('is-hidden');
 			$('.card').removeClass('active');
 			$('#msg-card-' + msg.id).addClass('active');
-			$('.message .avatar img').attr("src", "http://img.busy.org/@" + msg.from);
-			$('.message .subject').text(msg.subject);
-			var msg_body = '<p>' +
-				this.$options.filters.markdownToHTML(msg.content) +
-				'</p>';
-			$('.message .content').html(msg_body);
-			$('.message .control .reply').val('');
-			$('.message .control .reply').focus();
+
+			$('#reply').val('@' + msg.from + ' ');
+			$('#reply').focus();
 			
 			this.selectedComment = msg;
 			this.vote = $.cookie("vote%");
 		},
-		formatDate: function(date) {
-	      // Format date from UTC to locale Date
-	      return new Date(Date.parse(date)).toLocaleDateString();
-    	},
-    	steemitUrl: function(path) {
-    	  return "https://www.steemit.com" + path;
-    	},
-    	profile: function(name) {
-    	  // Creation d'un lien vers le profile steemit d'un utilisateur
-    	  return "https://www.steemit.com/@" + name;
+        addEmoji: function(emoji) {
+            $('#reply').insertAtCaret(' ' + emoji);
+            $('#reply').focus();
+        },
+    	setVote: function(value) {
+			this.vote = value;
+			//console.log('Changing vote value to ' + this.vote);
+			$.cookie("vote%", this.vote, { expires: 7, path: '/' });
     	},
     	changeVote: function() {
-    	  this.vote = $('#vote-slider')[0].value;
-    	  //console.log('Changing vote value to ' + this.vote);
-    	  $.cookie("vote%", this.vote, { expires: 7, path: '/' });
+			let value = $('#vote-slider')[0].value;
+			this.setVote(value);
     	},
     	changeFilter: function(articleId, articleTitle) {
     		this.filter = {
@@ -177,13 +258,16 @@ var vm = new Vue({
     		};
     	},
 	    createDialog: function(type, data, timeout) {
-	      this.dialog = {type: type, data: data}
-	      if(typeof timeout !== "undefined") {
-	      	setTimeout(function() { vm.deleteDialog() }, 5000); 
-	      }
+	    	// Display a message with the given type
+	    	// If a timeout is provided (optional) the dialog will close automatically after that duration (in milliseconds)
+	      	this.dialog = {type: type, data: data}
+	      	let app = this;
+	      	if(typeof timeout !== "undefined") {
+	      		setTimeout(function() { app.closeDialog() }, timeout);
+	      	}
 	    },
-	    deleteDialog: function() {
-	      this.dialog = null
+	    closeDialog: function() {
+	      	this.dialog = null
 	    },
 		reload: function() {
 			var name = this.username;
@@ -232,9 +316,6 @@ var vm = new Vue({
 			// empty the current inbox
 			this.messages = [];
 
-			// TODO adapt pagination values
-			this.paginate = {};
-
 			// reload inbox with the new data
 			let pos = 0;
 			for (var i = 0; i < this.comments.length; i++) {
@@ -253,11 +334,6 @@ var vm = new Vue({
 						url : comment.url,
 						permlink: comment.permlink
 					};
-
-					if (this.messages.length >= 10) {
-						// TODO: Only keep 10 most recent comments until pagination is ready
-						break;
-					}
 				}
 			}
 
@@ -269,6 +345,18 @@ var vm = new Vue({
 			}
 			
 		},
+        startScheduler: function(pendingStuff, timeout) {
+            let app = this;
+            setTimeout(function() {
+                // Check if there is something pending
+                if (pendingStuff.length > 0) {
+                    // Execute action
+                    pendingStuff[0]();
+                }
+                // Recursive call
+                app.startScheduler(pendingStuff, timeout);
+            }, timeout);
+        },
 
 		/// IGNORE LIST HELPERS
 
@@ -293,10 +381,9 @@ var vm = new Vue({
 			return false;
 		},
 		getIgnoreList: function() {
-			let ignore = window.localStorage.getItem("ignore");
+			let ignore = ls.retrieve("ignore");
 			if (ignore == null) {
 				this.clearIgnoreList();
-				this.ignore = emptyIgnoreList();
 			} else {
 				// Check for missing Array in case version changed
 				if (!ignore.users) {
@@ -306,16 +393,16 @@ var vm = new Vue({
 					ignore.comments = [];
 				}
 			}
-			return JSON.parse(ignore);
+			return ignore;
 		},
 		saveIgnoreList: function() {
-			// LocalStorage : https://stackoverflow.com/questions/2010892/storing-objects-in-html5-localstorage
-			window.localStorage.setItem("ignore", JSON.stringify(this.ignore));
+			ls.save("ignore", this.ignore);
 		},
 		clearIgnoreList: function() {
 			this.ignore = emptyIgnoreList();
 			this.saveIgnoreList();
 			this.reload();
+			this.createDialog("is-success", "Ignore list cleared.", 2000);
 		},
 		addCommentToIgnore: function(id) {
 			if (this.removeComment(id)) {
@@ -350,6 +437,7 @@ var vm = new Vue({
 			if (this.selectedComment) {
 				this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
 				this.removeComment(this.selectedComment.id);
+				this.loadMessages();
 			} else {
 				alert('No comment selected');
 			}
@@ -361,11 +449,26 @@ var vm = new Vue({
 					alert('Comment is empty');
 				} else {
 					this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
+					this.removeComment(this.selectedComment.id);
+					this.loadMessages();
+				}
+			} else {
+				alert('No comment selected');
+			}
+		},
+		voteAndReplyToSelectedComment: function() {
+			if (this.selectedComment) {
+				let body = $('.message .control .reply').val();
+				if (body.length == 0) {
+					alert('Comment is empty');
+				} else {
+					this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
 					if (this.vote > 0) {
 						// If vote is defined, also vote on the comment
 						this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
 					}
 					this.removeComment(this.selectedComment.id);
+					this.loadMessages();
 				}
 			} else {
 				alert('No comment selected');
@@ -383,32 +486,36 @@ var vm = new Vue({
 		// STEEM CONNECT HELPERS
 
 		voteComment: function(author, permlink, weight) {
-	      app = this;
-	      sc2.vote(this.steemconnect.user.name, author, permlink, weight, function (err, res) {
-	        if (!err) {
-	          app.createDialog("is-success", 'You successfully voted for @' + author + '/' + permlink, 2000);
-	          console.log(app.dialog.data, err, res);
-	        } else {
-	          console.log(err);
-	          app.createDialog("is-danger", err);
-	        }
-	      });
+	      let app = this;
+	      this.pendingVotes.push(function() {
+              sc2.vote(app.steemconnect.user.name, author, permlink, weight, function (err, res) {
+                  if (!err) {
+                      app.pendingVotes.shift();
+                      console.log('You successfully voted for @' + author + '/' + permlink, err, res);
+                  } else {
+                      console.log(err);
+                      app.createDialog("is-danger", err);
+                  }
+              });
+          });
 	    },
 
 		replyComment: function(author, permlink, body) {
-	      app = this;
-	      sc2.comment(author, permlink, this.steemconnect.user.name, permlink+'-'+ Date.now(), 'Fast-Reply', body, null, function (err, res) {
-	        if (!err) {
-	          app.createDialog("is-success", 'You successfully commented post @' + author + '/' + permlink, 2000);
-	          console.log(app.dialog.data, err, res);
-	        } else {
-	          console.log(err);
-	          app.createDialog("is-danger", err, 5000);
-	        }
-	      });
+	      let app = this;
+	      this.pendingComments.push(function() {
+              sc2.comment(author, permlink, app.steemconnect.user.name, permlink+'-'+ Date.now(), '', body, {app: 'fast-reply'}, function (err, res) {
+                if (!err) {
+                  app.pendingComments.shift();
+                  console.log('You successfully commented post @' + author + '/' + permlink, err, res);
+                } else {
+                  console.log(err);
+                  app.createDialog("is-danger", err, 5000);
+                }
+              });
+          });
 	    },
 		shareComment: function(author, permlink) {
-	      app = this;
+	      let app = this;
 	      sc2.reblog(this.steemconnect.user.name, author, permlink, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-success", 'You successfully rebloged post @' + author + '/' + permlink, 2000);
@@ -420,7 +527,7 @@ var vm = new Vue({
 	      });
 	    },
 	    followAccount: function(username) {
-	      app = this;
+	      let app = this;
 	      sc2.follow(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-success", "You successfully followed @" + username, 2000);
@@ -432,7 +539,7 @@ var vm = new Vue({
 	      });
 	    },
 	    unfollowAccount: function(username) {
-	      app = this;
+	      let app = this;
 	      sc2.unfollow(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-warning", "You successfully unfollowed @" + username, 2000);
@@ -444,7 +551,7 @@ var vm = new Vue({
 	      });
 	    },
 	    ignoreAccount: function(username) {
-	      app = this;
+	      let app = this;
 	      sc2.ignore(this.steemconnect.user.name, username, function (err, res) {
 	        if (!err) {
 	          app.createDialog("is-warning", "You successfully ignored @" + username, 2000);
