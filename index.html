@@ -64,7 +64,7 @@
                         </a>
                         <div class="navbar-item has-dropdown is-hoverable">
                             <a class="navbar-link">
-                                <span class="compose"><i class="fa fa-filter"></i> Filter <em>{{ filter.title | truncate(50) }}</em></span> 
+                                <span class="compose"><i class="fa fa-filter"></i> Filter <em v-if="filter.id">: {{ filterCounters[filter.id] }} x {{ filter.title | truncate(50) }}</em></span>
                             </a>
                             <div class="navbar-dropdown">
                                 <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
@@ -76,9 +76,12 @@
                     </div>
                     <div class="navbar-end">
                         <a class="navbar-item">
-                            <span>{{ pending.comments }} <i class="fas fa-comment-alt"></i></span>
+                            <span v-if="comments">{{ comments.length }} <i class="fa fa-inbox"></i></span>
                         </a>
 
+                        <a class="navbar-item">
+                            <span>{{ pending.comments }} <i class="fas fa-comment-alt"></i></span>
+                        </a>
                         <a class="navbar-item">
                             <span>{{ pending.votes }} <i class="fas fa-chevron-circle-up"></i></span>
                         </a>

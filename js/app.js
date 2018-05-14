@@ -133,11 +133,13 @@ var vm = new Vue({
 		    let app = this;
 		    let counters = {};
 
-		    app.articles.forEach(function(article) {
-                counters[article.id] = app.comments.filter(function(comment) {
-                    return comment.rootId === article.id;
-                }).length;
-            });
+		    if (app.articles) {
+                app.articles.forEach(function (article) {
+                    counters[article.id] = app.comments.filter(function (comment) {
+                        return comment.rootId === article.id;
+                    }).length;
+                });
+            }
 
 		    return counters;
         }
