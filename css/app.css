@@ -1,25 +1,138 @@
-.control .is-grouped .button {
-  background-image: none;
+html,
+body {
+    font-family: 'Open Sans', serif;
+    font-size: 14px;
+    line-height: 1.5;
+    height: 100%;
+    background-color: #fff;
 }
 
 hr {
     margin: 40px 0;
 }
 
-h3 {
-    margin-bottom: 20px;
+#vm {
+    max-height: 100vh;
 }
 
 .low-reputation {
-	background: lightyellow;
+    background: lightyellow;
 }
 
-#vm {
-	max-height: 100vh;
+#message-feed,
+#message-pane {
+    padding-top: 90px;
+    overflow-y: scroll;
+    max-height: 100vh;
 }
 
-#message-feed, #message-pane {
-	padding-top: 90px;
-	overflow-y: scroll;
-	max-height: 100vh;
+.messages {
+    display: block;
+    background-color: #fff;
+    border-right: 1px solid #DEDEDE;
+    padding: 40px 20px;
+}
+
+.message {
+    display: block;
+    background-color: #fff;
+    padding: 40px 20px;
+}
+
+.inbox-messages {
+    margin-top: 0px;
+    /* was 60px */
+}
+
+.inbox-messages a {
+    /*
+	color:#66c2ff;
+	*/
+    color: #1a75ff;
+}
+
+.inbox-messages .card {
+    width: 100%;
+}
+
+.inbox-messages strong {
+    /* color: blue; */
+}
+
+.inbox-messages .msg-check {
+    padding: 0 20px;
+}
+
+.inbox-messages .msg-subject {
+    padding: 10px 0;
+}
+
+.inbox-messages .msg-attachment {
+    float: right;
+}
+
+.inbox-messages .msg-snippet {
+    padding: 5px 20px 0px 5px;
+}
+
+.inbox-messages .msg-subject .fa {
+    font-size: 14px;
+    padding: 3px 0;
+}
+
+.inbox-messages .msg-timestamp {
+    float: right;
+    padding: 0 20px;
+    color: #5d5d5d;
+}
+
+.message-preview {
+    margin-top: 0px;
+    /* was 60px */
+}
+
+.message-preview .avatar {
+    display: inline-block;
+}
+
+.message-preview .top .address {
+    display: inline-block;
+    padding: 0 20px;
+}
+
+.message-preview .top .address a {
+    color: #1a75ff;
+}
+
+.fa-paperclip {
+    /*color:#66c2ff;*/
+    color: #1a75ff;
+}
+
+.avatar img {
+    max-width: 120px;
+    max-height: 80px;
+    border-radius: 50px;
+    border: 2px solid #999;
+    padding: 2px;
+}
+
+.control .is-grouped .button {
+    background-image: none;
+}
+
+
+
+/* ---- Hover ---- */
+
+.navbar a:hover {
+    transform: scale(1.2);
+}
+
+button:hover {
+	opacity:0.7;
+}
+.inbox-messages a:hover,
+.message-preview .top .address a:hover {
+    font-size: 1.04em;
 }
