@@ -305,8 +305,8 @@ var vm = new Vue({
 					}					
 
 					this.comments = filteredComments;
-					console.log("Found " + this.comments.length + " new comment(s).");
-					this.createDialog("is-success", "Found " + comments.length + " comments on " + articlesIds.length + " articles.", 5000);
+					console.log("Found " + filteredComments.length + " new comment(s).");
+					this.createDialog("is-success", "Found " + filteredComments.length + " comments on " + articlesIds.size + " articles.", 5000);
 
 					this.loadMessages();
 				})
