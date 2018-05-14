@@ -2,30 +2,41 @@
 <html lang="fr">
 
 <head>
-    <title>Fast reply</title>
+    <title>Fast-Reply: Waiting no more</title>
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <!-- Additional fonts & icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
-    <link rel="stylesheet" href="css/sc2.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-    <script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
-    <script src="js/sc2.min.js"></script>
-    <script src="js/SC2Utils.js"></script>
-    <script src="js/vue.js"></script>
-    <!-- DEV  -->
-    <!--script src="js/vue.min.js"></script-->
-    <!-- PROD -->
-    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
-    <!-- BULMA Extensions -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
- 	<link rel="stylesheet" type="text/css" href="/css/app.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1" rel="stylesheet" type="text/css">
+
+    <!-- jQuery + plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+    <!-- Steem -->
+    <script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
+    <script src="js/sc2.min.js"></script>
+
+    <!-- VUE Framework + plugins -->
+    <script src="https://vuejs.org/js/vue.js"></script>             <!-- DEV  -->
+    <!--script src="https://vuejs.org/js/vue.min.js"></script-->    <!-- PROD -->
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+
+    <!-- BULMA CSS Framework -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bulma-extensions@1.0.14/bulma-slider/dist/bulma-slider.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/app.css">
+
+    <!-- Third party libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
+
     <!-- Favicon https://www.favicon-generator.org/ -->
     <link rel="apple-touch-icon" sizes="57x57" href="/img/favicon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/img/favicon//apple-icon-60x60.png">
@@ -44,13 +55,12 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/img/favicon//ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-
 </head>
 
 <body>
     <div id="vm">
         <section v-if="steemconnect.user != null">
-            <nav class="navbar has-shadow">
+            <nav class="navbar has-shadow is-fixed-top">
                 <div class="container">
                     <div class="navbar-brand">
                         <a class="navbar-item" href="#">
@@ -99,17 +109,23 @@
             <div class="columns" id="mail-app">
                 <div class="column is-4 messages hero is-fullheight" id="message-feed">
                     <div class="inbox-messages" id="inbox-messages">
-                        <div v-if="dialog != null" class="notification" :class="dialog.type">
-                            <button class="delete" @click.prevent="closeDialog"></button>
-                            {{ dialog.data }}
-                        </div>
+                        <!-- https://vuejs.org/v2/guide/transitions.html -->
+                        <transition
+                                name="custom-classes-transition"
+                                enter-active-class="animated bounceInRight"
+                                leave-active-class="animated bounceOutRight">
+                            <div v-if="dialog != null" class="notification" :class="dialog.type">
+                                <button class="delete" @click.prevent="closeDialog"></button>
+                                {{ dialog.data }}
+                            </div>
+                        </transition>
                         <div v-for="msg in messages" class="card" :id="'msg-card-'+msg.id" @click="showMessage(msg)" :data-preview-id="msg.id">
                             <div class="card-content" :class="[msg.reputation < 25 ? 'low-reputation': '']">
                                 <div class="msg-header">
                                     <a target="_blank" :href="$options.filters.profile(msg.from)">
-                                        <span class="msg-from"><small><strong>@{{ msg.from }} ({{ parseInt(msg.reputation) }})</strong></small></span>
+                                        <span class="steem-username">@{{ msg.from }} ({{ parseInt(msg.reputation) }})</span>
                                     </a>
-                                    <span class="msg-attachment">&nbsp;<a @click="addCommentToIgnore(msg.id)"><i class="fa fa-window-close" style="color:red"></i></a></span>
+                                    <span class="msg-attachment">&nbsp;<a @click="addCommentToIgnore(msg.id)"><i class="fa fa-window-close red"></i></a></span>
                                     <span class="msg-timestamp">{{ msg.timestamp | date }}</span>
                                 </div>
                                 <div class="msg-subject">
@@ -135,36 +151,36 @@
                 </div>
                 <div class="column is-8 message hero is-fullheight" id="message-pane" v-show="hasComments">
                     <div class="box message-preview">
-                        <div class="top">
-                            <div v-if="selectedComment" class="avatar">
+                        <div v-if="selectedComment" class="top">
+                            <div class="avatar">
                                 <img :src="$options.filters.avatar(selectedComment.from)">
                             </div>
                             <div class="address">
-                                <div v-if="selectedComment" class="name">
-                                    <a target="_blank" :href="'https://www.steemit.com/@' + (selectedComment.from)">
+                                <div class="steem-username">
+                                    <a target="_blank" :href="$options.filters.profile(selectedComment.from)">
                                         @{{ selectedComment.from }} ({{ parseInt(selectedComment.reputation) }})
                                     </a>
                                 </div>
-                                <button v-if="selectedComment" @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
+                                <button @click.prevent="followAccount(selectedComment.from)" class="button is-success is-small">
                                     Follow @{{ selectedComment.from }}
                                 </button>
-                                <button v-if="selectedComment" @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
+                                <button @click.prevent="unfollowAccount(selectedComment.from)" class="button is-warning is-small">
                                     Unfollow @{{ selectedComment.from }}
                                 </button>
-                                <button v-if="selectedComment" @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
+                                <button @click.prevent="ignoreAccount(selectedComment.from)" class="button is-danger is-small">
                                     Ignore @{{ selectedComment.from }}
                                 </button>
                             </div>
                             <div>
-                                <span v-if="selectedComment" class="msg-attachment">
+                                <span class="msg-attachment">
                                     <a target="_blank" :href="$options.filters.steemit(selectedComment.url)">
                                         <i class="fa fa-paperclip"></i>
                                     </a>
                                 </span>
-                                <span v-if="selectedComment" class="subject"><strong>{{ selectedComment.subject }}</strong></span>
+                                <span class="subject"><strong>{{ selectedComment.subject }}</strong></span>
                             </div>
                             <hr>
-                            <div v-if="selectedComment" class="content" v-html="$options.filters.markdownToHTML(selectedComment.content)">
+                            <div class="content" v-html="$options.filters.markdownToHTML(selectedComment.content)">
                             </div>
                         </div>
                     </div>

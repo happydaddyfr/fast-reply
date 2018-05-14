@@ -5,10 +5,42 @@ body {
     line-height: 1.5;
     height: 100%;
     background-color: #fff;
+    font-weight: 300;
 }
 
 hr {
     margin: 40px 0;
+}
+
+.hero.is-success {
+    background: white;
+}
+.hero .nav, .hero.is-success .nav {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.box {
+    margin-top: 5rem;
+}
+.avatar {
+    margin-top: -70px;
+    padding-bottom: 20px;
+}
+.avatar img {
+    padding: 5px;
+    background: #fff;
+    border-radius: 50%;
+    -webkit-box-shadow: 0 2px 3px rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.1);
+    box-shadow: 0 2px 3px rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.1);
+}
+input {
+    font-weight: 300;
+}
+p {
+    font-weight: 100;
+}
+p.subtitle {
+    padding-top: 1rem;
 }
 
 #vm {
@@ -19,8 +51,7 @@ hr {
     background: lightyellow;
 }
 
-#message-feed,
-#message-pane {
+#message-feed, #message-pane {
     padding-top: 90px;
     overflow-y: scroll;
     max-height: 100vh;
@@ -45,18 +76,15 @@ hr {
 }
 
 .inbox-messages a {
-    /*
-	color:#66c2ff;
-	*/
-    color: #1a75ff;
+    color: #5D5D5D;
+}
+
+.red {
+    color: red;
 }
 
 .inbox-messages .card {
     width: 100%;
-}
-
-.inbox-messages strong {
-    /* color: blue; */
 }
 
 .inbox-messages .msg-check {
@@ -101,11 +129,10 @@ hr {
 }
 
 .message-preview .top .address a {
-    color: #1a75ff;
+    color: #5D5D5D;
 }
 
 .fa-paperclip {
-    /*color:#66c2ff;*/
     color: #1a75ff;
 }
 
@@ -125,7 +152,7 @@ hr {
 
 /* ---- Hover ---- */
 
-.navbar a:hover {
+.navbar-dropdown a:hover {
     transform: scale(1.2);
 }
 
@@ -135,4 +162,10 @@ button:hover {
 .inbox-messages a:hover,
 .message-preview .top .address a:hover {
     font-size: 1.04em;
+}
+
+.steem-username {
+	font-size: small;
+	font-weight: 700;
+	text-decoration: none;
 }
