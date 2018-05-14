@@ -14,6 +14,20 @@ var emptyIgnoreList = function() {
 	};
 }
 
+var ls = {
+    // LocalStorage : https://stackoverflow.com/questions/2010892/storing-objects-in-html5-localstorage
+    retrieve: function(key) {
+        let value = window.localStorage.getItem(key);
+        if (value) {
+            value = JSON.parse(value);
+        }
+        return value;
+    },
+    save: function(key, value) {
+        window.localStorage.setItem(key, JSON.stringify(value));
+    }
+}
+
 // Insert content (myValue) inside input, textarea element at cursor position
 // https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
 $.fn.extend({
@@ -367,10 +381,9 @@ var vm = new Vue({
 			return false;
 		},
 		getIgnoreList: function() {
-			let ignore = window.localStorage.getItem("ignore");
+			let ignore = ls.retrieve("ignore");
 			if (ignore == null) {
 				this.clearIgnoreList();
-				this.ignore = emptyIgnoreList();
 			} else {
 				// Check for missing Array in case version changed
 				if (!ignore.users) {
@@ -380,11 +393,10 @@ var vm = new Vue({
 					ignore.comments = [];
 				}
 			}
-			return JSON.parse(ignore);
+			return ignore;
 		},
 		saveIgnoreList: function() {
-			// LocalStorage : https://stackoverflow.com/questions/2010892/storing-objects-in-html5-localstorage
-			window.localStorage.setItem("ignore", JSON.stringify(this.ignore));
+			ls.save("ignore", this.ignore);
 		},
 		clearIgnoreList: function() {
 			this.ignore = emptyIgnoreList();
