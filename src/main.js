@@ -7,7 +7,6 @@ import Vuex from 'vuex'
 import steem from 'steem'
 import sc2 from 'sc2-sdk'
 import Cookies from 'js-cookie'
-import showdown from 'showdown'
 import 'vue-awesome/icons'
 
 // Load Bulma CSS
@@ -15,7 +14,7 @@ import 'bulma/css/bulma.css'
 import Icon from 'vue-awesome/components/Icon'
 
 // Initialize App
-import filters from './utils/filters.js'
+import './utils/filters.js'
 import router from './router'
 import App from './App'
 
