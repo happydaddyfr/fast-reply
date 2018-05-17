@@ -18,10 +18,10 @@ import router from './router'
 
 // Import components
 import App from './App'
-import Login from './components/Login'
+// import Login from './components/Login'
 
 Vue.use(Vuex)
-Vue.component('fr-login', Login)
+// Vue.component('fr-login', Login)
 
 Vue.config.productionTip = false
 
@@ -73,7 +73,7 @@ new Vue({
   el: '#app',
   store,
   router,
-  components: { App, Login },
+  components: { App },
   template: '<App/>',
   created () {
     console.log(steem)

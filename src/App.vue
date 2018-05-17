@@ -8,14 +8,17 @@
       </div>
     <!--/div-->
     <!--div v-else-->
-      <fr-login :sc2-login-url="this.$store.getters.getLoginURL"></fr-login>
+      <Login :sc2-login-url="this.$store.getters.getLoginURL"></Login>
     <!--/div-->
   </div>
 </template>
 
 <script>
+import Login from './components/Login'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: { Login }
 }
 </script>
 
