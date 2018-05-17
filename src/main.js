@@ -37,9 +37,13 @@ var api = sc2.Initialize({
 const store = new Vuex.Store({
   state: {
     count: 0,
-    connected: false,
     ignoreList: {comments: [], users: []},
-    steemconnect: api,
+    steemconnect: {
+      api: api,
+      user: null,
+      metadata: null,
+      profile_image: null
+    },
     username: '???'
   },
   mutations: {
@@ -49,28 +53,55 @@ const store = new Vuex.Store({
     resetIgnore (state) {
       state.ignoreList = {comments: [], users: []}
     },
-    connect (state, value) {
-      state.connected = value
+    connect (state, result) {
+      state.count = 42
+      state.steemconnect.user = result.account
+      state.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2)
+      state.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image']
+    }
+  },
+  actions: {
+    increment (context) {
+      context.commit('increment')
+    },
+    connect (context, token) {
+      context.state.steemconnect.api.setAccessToken(token)
+      // Async commit inside function not working ?!
+      context.state.steemconnect.api.me((err, result) => {
+        console.log('/me', err, result) // DEBUG
+        if (!err) {
+          console.log('User connected')
+          // Fill the steemconnect placeholder with results
+          context.commit('connect', result)
+          // app.updateVotingPower();
+        }
+      })
     }
   },
   getters: {
-    selfCount: state => {
-      return state.count
-    },
     getLoginURL: state => {
-      return api.getLoginURL()
+      return state.steemconnect.api.getLoginURL()
     },
     getSteemConnectApi: state => {
-      return state.steemconnect
+      return state.steemconnect.api
     },
     username: state => {
-      return state.username
+      if (this.connected) {
+        return state.steemconnect.user.name
+      } else {
+        return '???'
+      }
+    },
+    connected: state => {
+      return state.steemconnect.user != null
     }
   }
 })
 
-store.commit('increment')
-console.log(store.state.count) // -> 1
+// TEST
+// store.commit('increment')
+// store.dispatch('increment')
+// console.log(store.state.count) // -> 1
 
 /* eslint-disable no-new */
 new Vue({
@@ -80,10 +111,10 @@ new Vue({
   components: { App },
   template: '<App/>',
   created () {
-    console.log(steem)
-    console.log(showdown)
-    // let app = this;
     console.log('VueJS #vm initialized')
+
+    // TODO remove once used
+    console.log(steem)
 
     console.log('Load settings')
     if (Cookies.get('vote%') != null) {
@@ -97,18 +128,9 @@ new Vue({
 
     console.log('Load Steem profile')
     // Request user details if token is available
-    if (Cookies.get('access_token') != null) {
-      this.$store.getters.SteemConnect.setAccessToken(Cookies.get('access_token'))
-      this.$store.getters.SteemConnect.me(function (err, result) {
-        console.log('/me', err, result) // DEBUG
-        if (!err) {
-          // Fill the steemconnect placeholder with results
-          // app.steemconnect.user = result.account;
-          // app.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2);
-          // app.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image'];
-          // app.updateVotingPower();
-        }
-      })
+    let token = Cookies.get('access_token')
+    if (token != null) {
+      this.$store.dispatch('connect', token)
     }
   }
 })
