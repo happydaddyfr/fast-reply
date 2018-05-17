@@ -3,11 +3,17 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+// Load 3rd patry libs
 import sc2 from 'sc2-sdk'
 import Cookies from 'js-cookie'
 
+// Load Bulma CSS
+import 'bulma/css/bulma.css'
+
+// Initialize vue-router
 import router from './router'
 
+// Import components
 import App from './App'
 import Login from './components/Login'
 
