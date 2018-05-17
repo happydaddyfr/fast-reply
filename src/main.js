@@ -8,20 +8,20 @@ import steem from 'steem'
 import sc2 from 'sc2-sdk'
 import Cookies from 'js-cookie'
 import showdown from 'showdown'
-import fontawesome from 'fontawesome'
+import 'vue-awesome/icons'
 
 // Load Bulma CSS
 import 'bulma/css/bulma.css'
+import Icon from 'vue-awesome/components/Icon'
 
-// Initialize vue-router
+// Initialize App
 import router from './router'
-
-// Import components
 import App from './App'
-// import Login from './components/Login'
 
+// Plugin declaration
 Vue.use(Vuex)
-// Vue.component('fr-login', Login)
+// Global component declaration
+Vue.component('icon', Icon)
 
 Vue.config.productionTip = false
 
@@ -77,7 +77,6 @@ new Vue({
   template: '<App/>',
   created () {
     console.log(steem)
-    console.log(fontawesome)
     console.log(showdown)
     // let app = this;
     console.log('VueJS #vm initialized')
