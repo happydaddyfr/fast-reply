@@ -1,10 +1,15 @@
 <template>
   <div id="app">
-    <div v-show="this.$router.currentRoute.name !== 'Login'" class="menu">
-      <router-link to="/">Hello</router-link>
-      <router-link to="/login">Login</router-link>
-    </div>
-    <router-view/>
+    <!--div v-if="this.$store.state.connected"-->
+      <div v-show="this.$router.currentRoute.name !== 'Login'" class="menu">
+        <router-link to="/">Hello</router-link>
+        <router-link to="/steemconnect">SteemConnect</router-link>
+        <router-view/>
+      </div>
+    <!--/div-->
+    <!--div v-else-->
+      <fr-login></fr-login>
+    <!--/div-->
   </div>
 </template>
 
@@ -60,7 +65,7 @@ export default {
     padding-top: 1rem;
   }
 
-  #vm {
+  #app {
     max-height: 100vh;
   }
 

@@ -8,7 +8,7 @@
               <img src="../assets/login/sc2.png">
             </figure>
             <form>
-              <a class="button is-block is-info is-large">Login</a>  <!-- :href="loginUrl" -->
+              <a class="button is-block is-info is-large" :href="sc2LoginUrl">Login</a>
             </form>
           </div>
           <p class="has-text-grey">
@@ -26,6 +26,7 @@
 <script>
 export default {
   name: 'Login',
+  props: ['sc2LoginUrl'],
   data () {
     return {
       // msg: 'Welcome to Your Test Vue.js App'
@@ -36,4 +37,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 </style>
