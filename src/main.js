@@ -15,6 +15,7 @@ import 'bulma/css/bulma.css'
 import Icon from 'vue-awesome/components/Icon'
 
 // Initialize App
+import filters from './utils/filters.js'
 import router from './router'
 import App from './App'
 
