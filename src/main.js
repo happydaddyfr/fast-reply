@@ -4,8 +4,11 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 // Load 3rd patry libs
+import steem from 'steem'
 import sc2 from 'sc2-sdk'
 import Cookies from 'js-cookie'
+import showdown from 'showdown'
+import fontawesome from 'fontawesome'
 
 // Load Bulma CSS
 import 'bulma/css/bulma.css'
@@ -73,6 +76,9 @@ new Vue({
   components: { App, Login },
   template: '<App/>',
   created () {
+    console.log(steem)
+    console.log(fontawesome)
+    console.log(showdown)
     // let app = this;
     console.log('VueJS #vm initialized')
 
