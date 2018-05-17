@@ -8,7 +8,7 @@
       </div>
     <!--/div-->
     <!--div v-else-->
-      <fr-login></fr-login>
+      <fr-login :sc2-login-url="this.$store.getters.getLoginURL"></fr-login>
     <!--/div-->
   </div>
 </template>
