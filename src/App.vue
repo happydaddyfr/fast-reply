@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <Menu></Menu>
     <!--div v-if="this.$store.state.connected"-->
       <div v-show="this.$router.currentRoute.name !== 'Login'" class="menu">
         <router-link to="/">Hello</router-link>
@@ -14,11 +15,12 @@
 </template>
 
 <script>
+import Menu from './components/Menu'
 import Login from './components/Login'
 
 export default {
   name: 'App',
-  components: { Login }
+  components: { Menu, Login }
 }
 </script>
 
@@ -181,10 +183,6 @@ export default {
 
   button:hover {
     opacity:0.7;
-  }
-  .inbox-messages a:hover,
-  .message-preview .top .address a:hover {
-    font-size: 1.04em;
   }
 
   .steem-username {

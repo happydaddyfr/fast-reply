@@ -40,7 +40,8 @@ const store = new Vuex.Store({
     count: 0,
     connected: false,
     ignoreList: {comments: [], users: []},
-    steemconnect: api
+    steemconnect: api,
+    username: '???'
   },
   mutations: {
     increment (state) {
@@ -60,8 +61,11 @@ const store = new Vuex.Store({
     getLoginURL: state => {
       return api.getLoginURL()
     },
-    SteemConnect: state => {
+    getSteemConnectApi: state => {
       return state.steemconnect
+    },
+    username: state => {
+      return state.username
     }
   }
 })
