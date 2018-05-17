@@ -9,7 +9,7 @@
       </div>
     <!--/div-->
     <!--div v-else-->
-      <Login :sc2-login-url="this.$store.getters.getLoginURL"></Login>
+      <Login :sc2LoginUrl="this.$store.getters.getLoginURL"></Login>
     <!--/div-->
   </div>
 </template>

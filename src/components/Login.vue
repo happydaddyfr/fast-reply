@@ -26,7 +26,7 @@
 <script>
 export default {
   name: 'Login',
-  props: ['sc2-login-url'],
+  props: ['sc2LoginUrl'],
   data () {
     return {
       // msg: 'Welcome to Your Test Vue.js App'
