@@ -48,6 +48,7 @@ const store = new Vuex.Store({
   },
   mutations: {
     increment (state) {
+      console.log('incrementing')
       state.count++
     },
     resetIgnore (state) {
@@ -56,6 +57,7 @@ const store = new Vuex.Store({
     connect (state, result) {
       state.count = 42
       state.steemconnect.user = result.account
+      console.log('updating steemconnect...', state.steemconnect.user)
       state.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2)
       state.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image']
     }
@@ -64,18 +66,16 @@ const store = new Vuex.Store({
     increment (context) {
       context.commit('increment')
     },
-    connect (context, token) {
-      context.state.steemconnect.api.setAccessToken(token)
-      // Async commit inside function not working ?!
-      context.state.steemconnect.api.me((err, result) => {
-        console.log('/me', err, result) // DEBUG
-        if (!err) {
-          console.log('User connected')
-          // Fill the steemconnect placeholder with results
-          context.commit('connect', result)
-          // app.updateVotingPower();
-        }
-      })
+    async connect ({ commit, state }, token) {
+      state.steemconnect.api.setAccessToken(token)
+      commit('increment')
+      // wait for async call to resolve using await, then use result
+      let result = await api.me()
+      // let result = await {account: { name: 'oroger', json_metadata: '' }, user_metadata: ''}
+      commit('increment')
+      console.log(result)
+      commit('connect', result)
+      // app.updateVotingPower()
     }
   },
   getters: {
