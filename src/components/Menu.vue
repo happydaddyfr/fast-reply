@@ -17,14 +17,14 @@
           </div>
         </div>
       </div>
-      <div class="navbar-end">
+      <div class="navbar-end" v-if="user">
         <!--a class="navbar-item">
           <span v-if="comments">{{ comments.length }} <i class="fa fa-inbox"></i></span>
+        </a-->
+        <a class="navbar-item" @click.prevent="updateVP">
+          <span>{{ votingPower }} <icon name="bolt" scale="0.8"></icon></span>
         </a>
-        <a class="navbar-item">
-          <span>{{ votingPower }} <i class="fas fa-bolt"></i></span>
-        </a>
-        <a class="navbar-item">
+        <!--a class="navbar-item">
           <span>{{ pending.comments }} <i class="fas fa-comment-alt"></i></span>
         </a>
         <a class="navbar-item">
@@ -35,11 +35,11 @@
         </a-->
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
-            {{ username }}
+            {{ user.name }}
           </a>
           <div class="navbar-dropdown">
             <a target="_blank" href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
-            <a target="_blank" :href="$options.filters.profile(username)" class="navbar-item">Steemit Profile</a>
+            <a target="_blank" :href="$options.filters.profile(user.name)" class="navbar-item">Steemit Profile</a>
             <a class="navbar-item" @click.prevent="clearIgnoreList">Clear ignore list</a>
             <hr class="navbar-divider">
             <a @click.prevent="logout" href="#" class="navbar-item">Logout</a>
@@ -51,16 +51,38 @@
 </template>
 
 <script>
+import Cookies from 'js-cookie'
+
 export default {
   name: 'top-menu',
-  data: function () {
-    return {
-      // username: this.$store.getters.username
+  computed: {
+    user () {
+      return this.$store.getters.user
+    },
+    votingPower () {
+      return this.$store.getters.steemconnect.vp
     }
   },
-  computed: {
-    username () {
-      return this.$store.getters.username
+  methods: {
+    logout: function () {
+      let dispatch = this.$store.dispatch
+      this.$store.getters.steemconnect.api.revokeToken(function (err, result) {
+        console.log(err, result)
+        if (!err && result.success) {
+          console.log('You successfully logged out')
+          // Remove all cookies
+          Cookies.remove('access_token', {path: '/'})
+          Cookies.remove('username', {path: '/'})
+          Cookies.remove('expires_in', {path: '/'})
+          // Reset all steemconnect local data
+          dispatch('logout')
+        } else {
+          console.error(err)
+        }
+      })
+    },
+    updateVP: function () {
+      this.$store.dispatch('updateVP')
     }
   }
 }

@@ -1,16 +1,14 @@
 <template>
   <div id="app">
     <Menu></Menu>
-    <!--div v-if="this.$store.state.connected"-->
-      <div v-show="this.$router.currentRoute.name !== 'Login'" class="menu">
-        <router-link to="/">Hello</router-link>
-        <router-link to="/steemconnect">SteemConnect</router-link>
-        <router-view/>
-      </div>
-    <!--/div-->
-    <!--div v-else-->
+    <div class="container" v-if="this.$router.currentRoute.name == 'SteemConnect' || this.$store.getters.user">
+      <router-link to="/">Hello</router-link>
+      <router-link to="/steemconnect">SteemConnect</router-link>
+      <router-view/>
+    </div>
+    <div v-else>
       <Login :sc2LoginUrl="this.$store.getters.getLoginURL"></Login>
-    <!--/div-->
+    </div>
   </div>
 </template>
 
@@ -27,7 +25,6 @@ export default {
 <style>
   html,
   body {
-    font-family: 'Open Sans', serif;
     font-size: 14px;
     line-height: 1.5;
     height: 100%;

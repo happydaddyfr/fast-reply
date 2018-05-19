@@ -41,67 +41,58 @@ const store = new Vuex.Store({
     steemconnect: {
       api: api,
       user: null,
-      metadata: null,
-      profile_image: null
-    },
-    username: '???'
+      vp: null
+    }
   },
   mutations: {
-    increment (state) {
-      console.log('incrementing')
-      state.count++
-    },
     resetIgnore (state) {
       state.ignoreList = {comments: [], users: []}
     },
     connect (state, result) {
-      state.count = 42
       state.steemconnect.user = result.account
-      console.log('updating steemconnect...', state.steemconnect.user)
-      state.steemconnect.metadata = JSON.stringify(result.user_metadata, null, 2)
-      state.steemconnect.profile_image = JSON.parse(result.account.json_metadata)['profile']['profile_image']
+    },
+    updateVP (state, vp) {
+      state.steemconnect.vp = vp
+    },
+    logout (state) {
+      state.steemconnect.user = null
+      state.steemconnect.vp = null
     }
   },
   actions: {
-    increment (context) {
-      context.commit('increment')
-    },
-    async connect ({ commit, state }, token) {
-      state.steemconnect.api.setAccessToken(token)
-      commit('increment')
+    async connect ({ dispatch, commit, state }, token) {
       // wait for async call to resolve using await, then use result
-      let result = await api.me()
-      // let result = await {account: { name: 'oroger', json_metadata: '' }, user_metadata: ''}
-      commit('increment')
-      console.log(result)
-      commit('connect', result)
-      // app.updateVotingPower()
+      state.steemconnect.api.setAccessToken(token)
+      commit('connect', await state.steemconnect.api.me())
+      dispatch('updateVP')
+    },
+    updateVP ({ dispatch, commit, state }) {
+      steem.api.getAccounts([state.steemconnect.user.name], function (err, response) {
+        if (!err) {
+          let secondsago = (new Date() - new Date(response[0].last_vote_time + 'Z')) / 1000
+          let vpow = response[0].voting_power + (10000 * secondsago / 432000)
+          vpow = Math.min(vpow / 100, 100).toFixed(2)
+          // console.log('VP = ' + vpow + '%')
+          commit('updateVP', vpow)
+        }
+      })
+    },
+    logout ({ dispatch, commit, state }) {
+      commit('logout')
     }
   },
   getters: {
     getLoginURL: state => {
       return state.steemconnect.api.getLoginURL()
     },
-    getSteemConnectApi: state => {
-      return state.steemconnect.api
+    user: state => {
+      return state.steemconnect.user
     },
-    username: state => {
-      if (this.connected) {
-        return state.steemconnect.user.name
-      } else {
-        return '???'
-      }
-    },
-    connected: state => {
-      return state.steemconnect.user != null
+    steemconnect: state => {
+      return state.steemconnect
     }
   }
 })
-
-// TEST
-// store.commit('increment')
-// store.dispatch('increment')
-// console.log(store.state.count) // -> 1
 
 /* eslint-disable no-new */
 new Vue({
@@ -132,5 +123,8 @@ new Vue({
     if (token != null) {
       this.$store.dispatch('connect', token)
     }
+  },
+  methods: {
+
   }
 })
