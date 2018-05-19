@@ -20,7 +20,7 @@
 
   <script>
     // Parse URL to look after SC2 returned values
-    params = (new URL(location)).searchParams;
+    params = (new URL(window.location)).searchParams;
     if (params.get('access_token') != null && params.get('username') != null && params.get('expires_in') != null)  {
       $.cookie("access_token", params.get('access_token'), { expires: 7, path: '/' });
       $.cookie("username", params.get('username'), { expires: 7, path: '/' });

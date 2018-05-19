@@ -4,7 +4,7 @@ sc2.init({
 	app: 'fast-reply.app',
 	callbackURL: 'http://localhost:8080/steemconnect/', // Dev localhost URL
 	//callbackURL: 'http://fast-reply.surge.sh/steemconnect/',  // Live demo URL
-	scope: ['vote', 'comment', 'custom_json'],
+	scope: ['vote', 'comment', 'custom_json']
 });
 
 var emptyIgnoreList = function() {
@@ -451,7 +451,9 @@ var vm = new Vue({
 		voteSelectedComment: function() {
 			if (this.selectedComment) {
 				this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
+
 				this.removeComment(this.selectedComment.id);
+				this.ignore["comments"].push(this.selectedComment.id);
 				this.loadMessages();
 			} else {
 				alert('No comment selected');
@@ -464,7 +466,9 @@ var vm = new Vue({
 					alert('Comment is empty');
 				} else {
 					this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
+
 					this.removeComment(this.selectedComment.id);
+                    this.ignore["comments"].push(this.selectedComment.id);
 					this.loadMessages();
 				}
 			} else {
@@ -483,6 +487,7 @@ var vm = new Vue({
 						this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
 					}
 					this.removeComment(this.selectedComment.id);
+                    this.ignore["comments"].push(this.selectedComment.id);
 					this.loadMessages();
 				}
 			} else {
