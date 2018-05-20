@@ -176,6 +176,9 @@ export default new Vuex.Store({
     },
     selectComment ({dispatch, commit, state}, comment) {
       commit('selectComment', comment)
+    },
+    setVotePower ({dispatch, commit, state}, value) {
+      commit('config', {name: 'vote', value: value})
     }
   },
   getters: {
