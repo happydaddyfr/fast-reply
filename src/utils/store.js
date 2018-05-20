@@ -27,6 +27,15 @@ let defaultConfig = {
   vote: 100
 }
 
+const filterIgnored = function (comments, ignoreList) {
+  return comments ? comments.filter(comment => (
+    // Filter comments from ignored users
+    !ignoreList.users.includes(comment.author) &&
+    // Filter comments previously ignored
+    !ignoreList.comments.includes(comment.id))
+  ) : null
+}
+
 // Create Global Store
 export default new Vuex.Store({
   state: {
@@ -38,9 +47,9 @@ export default new Vuex.Store({
     config: Vue.ls.get('config', defaultConfig),
     timers: {},
     inbox: {
-      comments: null, // All raw comments (filtered)  // TODO store all and filter using computed props
-      filter: null, // selected filter
-      selectedComment: null // Comments currently selected
+      comments: null,
+      filter: null,
+      selectedComment: null
     }
   },
   mutations: {
@@ -51,7 +60,6 @@ export default new Vuex.Store({
       state.steemconnect.user = result.account
     },
     updateVP (state, vp) {
-      console.log('VP: ', vp, '%')
       state.steemconnect.vp = vp
     },
     logout (state) {
@@ -71,24 +79,17 @@ export default new Vuex.Store({
       state.timers[timer.name] = timer.value
     },
     reload (state, result) {
-      let ignoreList = state.config.ignoreList
-      let comments = result.data.comments
-
-      let filteredComments = []
-      for (let i = 0; i < comments.length; i++) {
-        let comment = comments[i]
-        if (ignoreList.users.includes(comment.from) || ignoreList.comments.includes(comment.id)) {
-          // Filter comments based on ignore lists
-          continue
-        }
-        filteredComments.push(comment)
+      state.inbox.comments = result.data.comments
+      // Filter to find first non ignored comment
+      let filtered = filterIgnored(state.inbox.comments, state.config.ignoreList)
+      if (filtered.length > 0) {
+        // Select that comment
+        state.inbox.selectedComment = filtered[0]
       }
-      // Persist result to state
-      // TODO move to computed
-      state.inbox.comments = filteredComments
-
-      console.log('Found ' + filteredComments.length + ' new comment(s)')
-      toast.createDialog('success', 'Found ' + filteredComments.length + ' comments', 5000)
+      // Count number of unique rootId among comments
+      let articlesCount = state.inbox.comments.map(c => c.rootId).filter((value, index, self) => self.indexOf(value) === index).length
+      console.log('Found', state.inbox.comments.length, 'new comment(s) on', articlesCount, 'articles')
+      toast.createDialog('success', 'Found ' + state.inbox.comments.length + ' new comment(s) on ' + articlesCount + ' articles', 5000)
     },
     selectFilter (state, article) {
       state.inbox.filter = article
@@ -159,7 +160,11 @@ export default new Vuex.Store({
       return state.config
     },
     inbox: state => {
-      return state.inbox
+      return {
+        filter: state.inbox.filter,
+        selectedComment: state.inbox.selectedComment,
+        comments: filterIgnored(state.inbox.comments, state.config.ignoreList)
+      }
     }
   }
 })
