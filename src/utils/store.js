@@ -3,10 +3,10 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import VueResource from 'vue-resource' // https://github.com/pagekit/vue-resource
 import VueStorage from 'vue-ls'
-
+// Steem Libs
 import steem from 'steem'
 import sc2 from 'sc2-sdk'
-
+// Utils
 import toast from '@/utils/toast.js'
 
 // Plugin declaration

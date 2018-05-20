@@ -24,7 +24,7 @@
         <div>
           <span class="msg-attachment">
               <a target="_blank" :href="$options.filters.steemit(selectedComment.url)">
-                  <i class="fa fa-paperclip"></i>
+                  <icon name="paperclip" scale="0.8"></icon>
               </a>
           </span>
           <span class="subject"><strong>{{ selectedComment.rootTitle }}</strong></span>

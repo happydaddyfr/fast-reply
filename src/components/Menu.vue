@@ -7,7 +7,16 @@
         </a>
         <div class="navbar-item has-dropdown is-hoverable" v-if="user">
           <a class="navbar-link">
-            <span class="compose"><i class="fa fa-filter"></i> Filter <em v-if="inbox.filter">: {{ filterCounters[inbox.filter.id] }} x {{ inbox.filter.title | truncate(50) }}</em></span>
+            <span class="compose"><icon name="briefcase" scale="0.8"></icon> Tools</span>
+          </a>
+          <div class="navbar-dropdown">
+            <router-link class="navbar-item" to="/">Inbox</router-link>
+            <router-link class="navbar-item" to="/hello">Hello</router-link>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable" v-if="user">
+          <a class="navbar-link">
+            <span class="compose"><icon name="filter" scale="0.8"></icon> Filter <em v-if="inbox.filter">: {{ filterCounters[inbox.filter.id] }} x {{ inbox.filter.title | truncate(50) }}</em></span>
           </a>
           <div class="navbar-dropdown">
             <a class="navbar-item" id="filter-article-all" @click.prevent="selectFilter(null)">All articles</a>
@@ -82,14 +91,18 @@ export default {
     },
     articles () {
       let inbox = this.$store.getters.inbox
-      let articles = inbox.comments
+      if (inbox.comments) {
+        let articles = inbox.comments
         // Transform in filter
-        .map(function (comment) { return {id: comment.rootId, title: comment.rootTitle} })
-        // sort by ID
-        .sort((a, b) => a.id - b.id)
-        // Remove adjacent with existing id at prev position
-        .filter((item, pos, ary) => !pos || item.id !== ary[pos - 1].id)
-      return articles
+          .map(function (comment) {
+            return {id: comment.rootId, title: comment.rootTitle}
+          })
+          // sort by ID
+          .sort((a, b) => a.id - b.id)
+          // Remove adjacent with existing id at prev position
+          .filter((item, pos, ary) => !pos || item.id !== ary[pos - 1].id)
+        return articles
+      } else return []
     }
   },
   methods: {
