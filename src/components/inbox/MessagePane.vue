@@ -108,6 +108,19 @@ export default {
     },
     changeVote (event) {
       this.$store.dispatch('setVotePower', event.target.value)
+    },
+    addEmoji (emoji) {
+      // Inspiration : https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
+      let reply = document.getElementById('reply')
+      var startPos = reply.selectionStart
+      var endPos = reply.selectionEnd
+      var scrollTop = reply.scrollTop
+      reply.value = reply.value.substring(0, startPos) + emoji + reply.value.substring(endPos, reply.value.length)
+      reply.focus()
+      reply.selectionStart = startPos + emoji.length
+      reply.selectionEnd = startPos + emoji.length
+      reply.scrollTop = scrollTop
+      reply.focus()
     }
   }
 }
