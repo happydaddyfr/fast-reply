@@ -41,7 +41,6 @@ export default new Vuex.Store({
       comments: null, // All raw comments
       articles: null, // List of all the filters for articles
       filter: null, // selected filter
-      messages: null, // All comments currently shown by the app
       selectedComment: null // Comments currently selected
     }
   },
@@ -100,6 +99,7 @@ export default new Vuex.Store({
       }
 
       // Persist result to state
+      // TODO move to computed
       state.inbox.comments = filteredComments
       state.inbox.articles = articles
 
@@ -155,24 +155,7 @@ export default new Vuex.Store({
     },
     selectFilter ({dispatch, commit}, article) {
       commit('selectFilter', article)
-      dispatch('loadMessages')
-    },
-    loadMessages ({dispatch, commit, state}) {
-      // TODO transform messages into a computed variable of comments and filter
-      // Filter comments based on filter
-      let messages = state.inbox.comments.filter(comment => (state.inbox.filter == null || state.inbox.filter.id === comment.rootId))
-      // Store resulting list
-      commit('loadMessages', messages)
-
-      // Select first comment if available
-      if (state.inbox.messages.length > 0) {
-        dispatch('selectComment', state.inbox.messages[0])
-        // TODO make this reactive with watcher ?
-        // this.showMessage(state.inbox.messages[0])
-      } else {
-        console.log('No comments found for ', state.inbox.filter.title)
-        dispatch('selectComment', null)
-      }
+      // dispatch('loadMessages')
     },
     selectComment ({dispatch, commit, state}, comment) {
       commit('selectComment', comment)
