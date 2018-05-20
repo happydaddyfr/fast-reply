@@ -3,7 +3,6 @@
 import Vue from 'vue'
 
 // Load 3rd patry libs
-import Cookies from 'js-cookie'
 import 'vue-awesome/icons'
 
 // Load Bulma CSS
@@ -34,7 +33,7 @@ new Vue({
 
     console.log('Load Steem profile')
     // Request user details if token is available
-    let token = Cookies.get('access_token')
+    let token = this.$ls.get('access_token')
     if (token != null) {
       this.$store.dispatch('connect', token)
     }

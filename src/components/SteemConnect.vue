@@ -3,7 +3,10 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie'
+import Vue from 'vue'
+import Storage from 'vue-ls'
+
+Vue.use(Storage)
 
 export default {
   name: 'SteemConnect',
@@ -17,11 +20,9 @@ export default {
     let expiresIn = params['expires_in']
 
     if (accessToken != null && username != null && expiresIn != null) {
-      // Compute expiration in day
-      // https://github.com/js-cookie/js-cookie/wiki/Frequently-Asked-Questions#expire-cookies-in-less-than-a-day
-      let expiration = expiresIn / (24 * 60 * 60)
-      Cookies.set('username', username, { expires: expiration, path: '' })
-      Cookies.set('access_token', accessToken, { expires: expiration, path: '' })
+      let expiration = expiresIn * 1000 // expiration is in milliseconds
+      Vue.ls.set('username', username, expiration)
+      Vue.ls.set('access_token', accessToken, expiration)
       this.$store.dispatch('connect', accessToken)
     }
     this.$router.push('/')
