@@ -11,7 +11,7 @@
           </a>
           <div class="navbar-dropdown">
             <a class="navbar-item" id="filter-article-all" @click.prevent="selectFilter(null)">All articles</a>
-            <a v-for="article in inbox.articles" class="navbar-item" :key="article.id" :id="'filter-article-'+article.id" @click.prevent="selectFilter(article)">
+            <a v-for="article in articles" class="navbar-item" :key="article.id" :id="'filter-article-'+article.id" @click.prevent="selectFilter(article)">
               {{ filterCounters[article.id] }} x {{ article.title | truncate(50)}}
             </a>
           </div>
@@ -71,14 +71,25 @@ export default {
     filterCounters () {
       let inbox = this.$store.getters.inbox
       let counters = {}
-      if (inbox.articles) {
-        inbox.articles.forEach(function (article) {
+      if (this.articles) {
+        this.articles.forEach(function (article) {
           counters[article.id] = inbox.comments.filter(function (comment) {
             return comment.rootId === article.id
           }).length
         })
       }
       return counters
+    },
+    articles () {
+      let inbox = this.$store.getters.inbox
+      let articles = inbox.comments
+        // Transform in filter
+        .map(function (comment) { return {id: comment.rootId, title: comment.rootTitle} })
+        // sort by ID
+        .sort((a, b) => a.id - b.id)
+        // Remove adjacent with existing id at prev position
+        .filter((item, pos, ary) => !pos || item.id !== ary[pos - 1].id)
+      return articles
     }
   },
   methods: {
