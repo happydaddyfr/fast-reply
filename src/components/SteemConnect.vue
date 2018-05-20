@@ -7,9 +7,6 @@ import Cookies from 'js-cookie'
 
 export default {
   name: 'SteemConnect',
-  data () {
-    return { }
-  },
   created () {
     // TODO log with multiple accounts ?
 
@@ -20,9 +17,11 @@ export default {
     let expiresIn = params['expires_in']
 
     if (accessToken != null && username != null && expiresIn != null) {
-      Cookies.set('username', username, { expires: 7, path: '/' })
-      Cookies.set('expires_in', expiresIn, { expires: 7, path: '/' })
-      Cookies.set('access_token', accessToken, { expires: 7, path: '/' })
+      // Compute expiration in day
+      // https://github.com/js-cookie/js-cookie/wiki/Frequently-Asked-Questions#expire-cookies-in-less-than-a-day
+      let expiration = expiresIn / (24 * 60 * 60)
+      Cookies.set('username', username, { expires: expiration, path: '' })
+      Cookies.set('access_token', accessToken, { expires: expiration, path: '' })
       this.$store.dispatch('connect', accessToken)
     }
     this.$router.push('/')
