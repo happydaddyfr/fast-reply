@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar has-shadow"> <!-- is-fixed-top -->
+  <nav class="navbar has-shadow is-fixed-top">
     <div class="container">
       <div class="navbar-brand">
         <a class="navbar-item" href="#/">

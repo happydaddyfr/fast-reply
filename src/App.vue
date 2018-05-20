@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <Menu></Menu>
-    <div class="container" v-if="this.$router.currentRoute.name == 'SteemConnect' || this.$store.getters.user">
-      <router-link to="/">Hello</router-link>
-      <router-link to="/steemconnect">SteemConnect</router-link>
+    <div v-if="this.$router.currentRoute.name == 'SteemConnect' || this.$store.getters.user">
+      <!--<router-link to="/">Inbox</router-link>-->
+      <!--<router-link to="/hello">Hello</router-link>-->
+      <!--<router-link to="/steemconnect">SteemConnect</router-link>-->
       <Router></Router>
     </div>
     <div v-else>
