@@ -51,7 +51,10 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie'
+import Vue from 'vue'
+import Storage from 'vue-ls'
+
+Vue.use(Storage)
 
 export default {
   name: 'top-menu',
@@ -69,14 +72,14 @@ export default {
     },
     logout: function () {
       let dispatch = this.$store.dispatch
+      let ls = this.$ls
       this.$store.getters.steemconnect.api.revokeToken(function (err, result) {
         console.log(err, result)
         if (!err && result.success) {
           console.log('You successfully logged out')
           // Remove all cookies
-          Cookies.remove('access_token', {path: '/'})
-          Cookies.remove('username', {path: '/'})
-          Cookies.remove('expires_in', {path: '/'})
+          ls.remove('access_token')
+          ls.remove('username')
           // Reset all steemconnect local data
           dispatch('logout')
         } else {
