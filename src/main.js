@@ -11,7 +11,7 @@ import Icon from 'vue-awesome/components/Icon'
 // Initialize App
 import './utils/filters.js'
 import store from '@/utils/store.js'
-import router from '@/router'
+import router from '@/utils/router'
 import App from '@/App'
 
 // Global component declaration
