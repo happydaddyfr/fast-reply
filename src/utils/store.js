@@ -122,6 +122,7 @@ export default new Vuex.Store({
       state.steemconnect.api.setAccessToken(token)
       commit('connect', await state.steemconnect.api.me())
       dispatch('updateVP')
+      dispatch('reload')
     },
     updateVP ({ dispatch, commit, state }) {
       if (state.steemconnect.user) {
@@ -150,12 +151,10 @@ export default new Vuex.Store({
         const url = 'http://api.comprendre-steem.fr/getComments?username=roxane&test=' + user.name // TODO: remove 'roxane&test=' to use logged user
         // VueJS Ressource plugin: https://github.com/pagekit/vue-resource
         commit('reload', await Vue.http.get(url))
-        // dispatch('loadMessages')
       }
     },
     selectFilter ({dispatch, commit}, article) {
       commit('selectFilter', article)
-      // dispatch('loadMessages')
     },
     selectComment ({dispatch, commit, state}, comment) {
       commit('selectComment', comment)
