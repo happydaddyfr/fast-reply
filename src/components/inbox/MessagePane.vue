@@ -76,6 +76,9 @@
 </template>
 
 <script>
+import toast from '@/utils/toast.js'
+import sc2Utils from '@/utils/sc2-utils.js'
+
 export default {
   name: 'message-pane',
   watch: {
@@ -99,6 +102,12 @@ export default {
     },
     emojiQuickSelector () {
       return ['👍', '😀', '😘', '😍', '😆', '😎', '😅', '😂', '😱', '🙏', '🙄', '😭', '🇧🇪']
+    },
+    api () {
+      return this.$store.getters.steemconnect.api
+    },
+    me () {
+      return this.$store.getters.steemconnect.user.name
     }
   },
   methods: {
@@ -121,6 +130,78 @@ export default {
       reply.selectionEnd = startPos + emoji.length
       reply.scrollTop = scrollTop
       reply.focus()
+    },
+
+    /** Actions on selected comment **/
+    ignoreSelectedComment: function () {
+      if (this.selectedComment) {
+        this.$store.dispatch('addCommentToIgnore', this.selectedComment.id)
+      }
+    },
+
+    /** Vote/Comment actions are added to spool for later execution **/
+    voteSelectedComment: function() {
+      if (this.selectedComment) {
+        this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote);
+
+        this.removeComment(this.selectedComment.id);
+        this.ignore["comments"].push(this.selectedComment.id);
+        this.loadMessages();
+      } else {
+        alert('No comment selected');
+      }
+    },
+    // replyToSelectedComment: function() {
+    //   if (this.selectedComment) {
+    //     let body = $('.message .control .reply').val();
+    //     if (body.length == 0) {
+    //       alert('Comment is empty');
+    //     } else {
+    //       this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
+    //
+    //       this.removeComment(this.selectedComment.id);
+    //       this.ignore["comments"].push(this.selectedComment.id);
+    //       this.loadMessages();
+    //     }
+    //   } else {
+    //     alert('No comment selected');
+    //   }
+    // },
+    // voteAndReplyToSelectedComment: function() {
+    //   if (this.selectedComment) {
+    //     let body = $('.message .control .reply').val();
+    //     if (body.length == 0) {
+    //       alert('Comment is empty');
+    //     } else {
+    //       this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
+    //       if (this.vote > 0) {
+    //         // If vote is defined, also vote on the comment
+    //         this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
+    //       }
+    //       this.removeComment(this.selectedComment.id);
+    //       this.ignore["comments"].push(this.selectedComment.id);
+    //       this.loadMessages();
+    //     }
+    //   } else {
+    //     alert('No comment selected');
+    //   }
+    // },
+
+    /**  SteemConnect v2 -- Direct actions **/
+    followAccount: function (username) {
+      sc2Utils.follow(this.api, this.me, username)
+        .then(() => toast.createDialog('success', 'You are now following ' + username, '3000'))
+        .catch(err => toast.createDialog('error', err, 3000))
+    },
+    unfollowAccount: function (username) {
+      sc2Utils.unfollow(this.api, this.me, username)
+        .then(() => toast.createDialog('success', 'You are not following ' + username + ' anymore', '3000'))
+        .catch(err => toast.createDialog('error', err, 3000))
+    },
+    ignoreAccount: function (username) {
+      sc2Utils.ignore(this.api, this.me, username)
+        .then(() => toast.createDialog('success', 'You are now ignoring' + username, '3000'))
+        .catch(err => toast.createDialog('error', err, 3000))
     }
   }
 }
