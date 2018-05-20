@@ -4,7 +4,7 @@
     <div class="container" v-if="this.$router.currentRoute.name == 'SteemConnect' || this.$store.getters.user">
       <router-link to="/">Hello</router-link>
       <router-link to="/steemconnect">SteemConnect</router-link>
-      <router-view/>
+      <Router></Router>
     </div>
     <div v-else>
       <Login :sc2LoginUrl="this.$store.getters.steemconnect.api.getLoginURL()"></Login>
@@ -14,11 +14,12 @@
 
 <script>
 import Menu from './components/Menu'
+import Router from './components/Router'
 import Login from './components/Login'
 
 export default {
   name: 'App',
-  components: { Menu, Login }
+  components: { Menu, Router, Login }
 }
 </script>
 
