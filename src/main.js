@@ -36,8 +36,10 @@ new Vue({
     }
   },
   mounted () {
+    // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
     // refresh VP every minute
-    setInterval(this.$store.dispatch, 60000, 'updateVP')
+    let vpTimer = setInterval(this.$store.dispatch, 60000, 'updateVP')
+    this.$store.dispatch('timer', {name: 'updateVP', value: vpTimer})
   },
   methods: {
 

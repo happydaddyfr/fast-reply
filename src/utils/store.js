@@ -31,7 +31,8 @@ export default new Vuex.Store({
       user: null,
       vp: null
     },
-    config: Vue.ls.get('config', defaultConfig)
+    config: Vue.ls.get('config', defaultConfig),
+    timers: {}
   },
   mutations: {
     clearIgnoreList (state) {
@@ -41,7 +42,7 @@ export default new Vuex.Store({
       state.steemconnect.user = result.account
     },
     updateVP (state, vp) {
-      // console.log('VP: ', vp, '%')
+      console.log('VP: ', vp, '%')
       state.steemconnect.vp = vp
     },
     logout (state) {
@@ -52,6 +53,13 @@ export default new Vuex.Store({
     config (state, {name, value}) {
       state.config[name] = value
       Vue.ls.set('config', state.config)
+    },
+    timer (state, timer) {
+      if (state.timers[timer]) {
+        // Remove previous interval, if set
+        clearInterval(state.timers[timer.name])
+      }
+      state.timers[timer.name] = timer.value
     }
   },
   actions: {
@@ -78,6 +86,9 @@ export default new Vuex.Store({
     },
     logout ({ commit }) {
       commit('logout')
+    },
+    timer ({dispatch, commit, state}, timer) {
+      commit('timer', timer)
     }
   },
   getters: {
