@@ -7,20 +7,20 @@
         </a>
         <div class="navbar-item has-dropdown is-hoverable" v-if="user">
           <a class="navbar-link">
-            <span class="compose"><i class="fa fa-filter"></i> Filter <!--em v-if="filter.id">: {{ filterCounters[filter.id] }} x {{ filter.title | truncate(50) }}</em--></span>
+            <span class="compose"><i class="fa fa-filter"></i> Filter <em v-if="inbox.filter">: {{ filterCounters[inbox.filter.id] }} x {{ inbox.filter.title | truncate(50) }}</em></span>
           </a>
           <div class="navbar-dropdown">
             <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
-            <!--a v-for="article in articles" class="navbar-item" :id="'filter-article-'+article.id" @click.prevent="changeFilter(article.id, article.title)">
-              {{ filterCounters[article.id] }} x {{ article.title | truncate (50)}}
-            </a-->
+            <a v-for="article in inbox.articles" class="navbar-item" :key="article.id" :id="'filter-article-'+article.id">  <!-- @click.prevent="changeFilter(article.id, article.title)" -->
+              {{ filterCounters[article.id] }} x {{ article.title | truncate(50)}}
+            </a>
           </div>
         </div>
       </div>
       <div class="navbar-end" v-if="user">
-        <!--a class="navbar-item">
-          <span v-if="comments">{{ comments.length }} <i class="fa fa-inbox"></i></span>
-        </a-->
+        <a class="navbar-item">
+          <span v-if="inbox.comments">{{ inbox.comments.length }} <i class="fa fa-inbox"></i></span>
+        </a>
         <a class="navbar-item" @click.prevent="updateVP">
           <span>{{ votingPower }} <icon name="bolt" scale="0.8"></icon></span>
         </a>
@@ -29,10 +29,10 @@
         </a>
         <a class="navbar-item">
           <span>{{ pending.votes }} <i class="fas fa-chevron-circle-up"></i></span>
-        </a>
-        <a class="navbar-item" @click.prevent="reload">
-          <span><i class="fa fa-refresh"></i> Reload</span>
         </a-->
+        <a class="navbar-item" @click.prevent="reload">
+          <span>Reload <icon name="sync" scale="0.8"></icon></span>
+        </a>
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
             {{ user.name }}
@@ -64,6 +64,21 @@ export default {
     },
     votingPower () {
       return this.$store.getters.steemconnect.vp
+    },
+    inbox () {
+      return this.$store.getters.inbox
+    },
+    filterCounters () {
+      let inbox = this.$store.getters.inbox
+      let counters = {}
+      if (inbox.articles) {
+        inbox.articles.forEach(function (article) {
+          counters[article.id] = inbox.comments.filter(function (comment) {
+            return comment.rootId === article.id
+          }).length
+        })
+      }
+      return counters
     }
   },
   methods: {
@@ -89,6 +104,9 @@ export default {
     },
     updateVP: function () {
       this.$store.dispatch('updateVP')
+    },
+    reload: function () {
+      this.$store.dispatch('reload')
     }
   }
 }

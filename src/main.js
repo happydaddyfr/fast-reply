@@ -7,7 +7,7 @@ import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
 
 // Initialize App
-import '@/utils/filters.js'
+import './utils/filters.js'
 import store from '@/utils/store.js'
 import router from '@/router'
 import App from '@/App'

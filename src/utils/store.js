@@ -157,6 +157,9 @@ export default new Vuex.Store({
     },
     config: state => {
       return state.config
+    },
+    inbox: state => {
+      return state.inbox
     }
   }
 })
