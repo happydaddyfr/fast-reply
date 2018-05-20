@@ -27,13 +27,14 @@ let defaultConfig = {
   vote: 100
 }
 
-const filterIgnored = function (comments, ignoreList) {
-  return comments ? comments.filter(comment => (
-    // Filter comments from ignored users
-    !ignoreList.users.includes(comment.author) &&
-    // Filter comments previously ignored
-    !ignoreList.comments.includes(comment.id))
-  ) : null
+const filterIgnored = function (comments, filter, ignoreList) {
+  return comments ? comments
+    // Filter using selected article
+    .filter(comment => (filter == null || filter.id === comment.rootId))
+    // Filter comments from ignored users && Filter comments previously ignored
+    .filter(comment => (!ignoreList.users.includes(comment.author) && !ignoreList.comments.includes(comment.id)))
+    // Otherwise return null
+    : null
 }
 
 // Create Global Store
@@ -80,12 +81,6 @@ export default new Vuex.Store({
     },
     reload (state, result) {
       state.inbox.comments = result.data.comments
-      // Filter to find first non ignored comment
-      let filtered = filterIgnored(state.inbox.comments, state.config.ignoreList)
-      if (filtered.length > 0) {
-        // Select that comment
-        state.inbox.selectedComment = filtered[0]
-      }
       // Count number of unique rootId among comments
       let articlesCount = state.inbox.comments.map(c => c.rootId).filter((value, index, self) => self.indexOf(value) === index).length
       console.log('Found', state.inbox.comments.length, 'new comment(s) on', articlesCount, 'articles')
@@ -159,6 +154,15 @@ export default new Vuex.Store({
       if (user) {
         const url = 'http://api.comprendre-steem.fr/getComments?username=roxane&test=' + user.name // TODO: remove 'roxane&test=' to use logged user
         commit('reload', await Vue.http.get(url))
+        dispatch('selectFirstComment')
+      }
+    },
+    selectFirstComment ({dispatch, commit, state}) {
+      // Filter to find first non ignored comment
+      let filtered = filterIgnored(state.inbox.comments, state.inbox.filter, state.config.ignoreList)
+      if (filtered.length > 0) {
+        // Select that comment
+        commit('selectComment', filtered[0])
       }
     },
     selectFilter ({dispatch, commit}, article) {
@@ -194,7 +198,7 @@ export default new Vuex.Store({
       return {
         filter: state.inbox.filter,
         selectedComment: state.inbox.selectedComment,
-        comments: filterIgnored(state.inbox.comments, state.config.ignoreList)
+        comments: filterIgnored(state.inbox.comments, state.inbox.filter, state.config.ignoreList)
       }
     }
   }
