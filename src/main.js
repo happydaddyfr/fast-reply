@@ -3,6 +3,8 @@
 import Vue from 'vue'
 // Load 3rd patry libs
 import 'bulma/css/bulma.css'
+import 'bulma-slider/dist/bulma-slider.min.css'
+import 'bulma-slider/dist/bulma-slider.min'
 import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
 
