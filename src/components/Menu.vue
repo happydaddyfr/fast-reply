@@ -19,7 +19,7 @@
       </div>
       <div class="navbar-end" v-if="user">
         <a class="navbar-item">
-          <span v-if="inbox.comments">{{ inbox.comments.length }} <i class="fa fa-inbox"></i></span>
+          <span v-if="inbox.comments">{{ inbox.comments.length }} <icon name="inbox" scale="0.8"></icon></span>
         </a>
         <a class="navbar-item" @click.prevent="updateVP">
           <span>{{ votingPower }} <icon name="bolt" scale="0.8"></icon></span>
