@@ -28,15 +28,16 @@ new Vue({
   components: { App },
   template: '<App/>',
   created () {
-    // Load ignore list
-    // this.ignore = this.getIgnoreList();
-
     console.log('Load Steem profile')
     // Request user details if token is available
     let token = this.$ls.get('access_token')
     if (token != null) {
       this.$store.dispatch('connect', token)
     }
+  },
+  mounted () {
+    // refresh VP every minute
+    setInterval(this.$store.dispatch, 60000, 'updateVP')
   },
   methods: {
 

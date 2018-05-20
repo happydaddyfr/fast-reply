@@ -5,7 +5,7 @@
         <a class="navbar-item" href="#/">
           <img src="../assets/menu/fast-reply-icon.png" alt="Waiting no more">Fast-Reply
         </a>
-        <div class="navbar-item has-dropdown is-hoverable">
+        <div class="navbar-item has-dropdown is-hoverable" v-if="user">
           <a class="navbar-link">
             <span class="compose"><i class="fa fa-filter"></i> Filter <!--em v-if="filter.id">: {{ filterCounters[filter.id] }} x {{ filter.title | truncate(50) }}</em--></span>
           </a>
@@ -64,6 +64,9 @@ export default {
     }
   },
   methods: {
+    clearIgnoreList: function () {
+      this.$store.dispatch('clearIgnoreList')
+    },
     logout: function () {
       let dispatch = this.$store.dispatch
       this.$store.getters.steemconnect.api.revokeToken(function (err, result) {

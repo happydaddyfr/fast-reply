@@ -34,13 +34,14 @@ export default new Vuex.Store({
     config: Vue.ls.get('config', defaultConfig)
   },
   mutations: {
-    resetIgnore (state) {
+    clearIgnoreList (state) {
       state.config.ignoreList = {comments: [], users: []}
     },
     connect (state, result) {
       state.steemconnect.user = result.account
     },
     updateVP (state, vp) {
+      // console.log('VP: ', vp, '%')
       state.steemconnect.vp = vp
     },
     logout (state) {
@@ -61,15 +62,19 @@ export default new Vuex.Store({
       dispatch('updateVP')
     },
     updateVP ({ dispatch, commit, state }) {
-      steem.api.getAccounts([state.steemconnect.user.name], function (err, response) {
-        if (!err) {
-          let secondsago = (new Date() - new Date(response[0].last_vote_time + 'Z')) / 1000
-          let vpow = response[0].voting_power + (10000 * secondsago / 432000)
-          vpow = Math.min(vpow / 100, 100).toFixed(2)
-          // console.log('VP = ' + vpow + '%')
-          commit('updateVP', vpow)
-        }
-      })
+      if (state.steemconnect.user) {
+        steem.api.getAccounts([state.steemconnect.user.name], function (err, response) {
+          if (!err) {
+            let secondsago = (new Date() - new Date(response[0].last_vote_time + 'Z')) / 1000
+            let vpow = response[0].voting_power + (10000 * secondsago / 432000)
+            vpow = Math.min(vpow / 100, 100).toFixed(2)
+            commit('updateVP', vpow)
+          }
+        })
+      }
+    },
+    clearIgnoreList ({ commit }) {
+      commit('clearIgnoreList')
     },
     logout ({ commit }) {
       commit('logout')
