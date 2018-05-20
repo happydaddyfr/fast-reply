@@ -99,6 +99,27 @@ export default new Vuex.Store({
     },
     selectComment (state, comment) {
       state.inbox.selectedComment = comment
+    },
+    ignoreComment (state, commentId) {
+      // Find comment based on its id and remove it from the list
+      for (var i = 0; i < state.inbox.comments.length; i++) {
+        if (state.inbox.comments[i].id === commentId) {
+          // Find the right index and remove it
+          state.inbox.comments.splice(i, 1)
+        }
+      }
+      // Push to ignore list
+      state.config.ignoreList.comments.push(commentId)
+    },
+    ignoreUser (state, username) {
+      // Find the comments from the given user and remove them
+      for (var i = 0; i < this.comments.length; i++) {
+        if (state.inbox.comments[i].from === username) {
+          state.inbox.comments.splice(i, 1)
+        }
+      }
+      // Push to ignore list
+      state.config.ignoreList.users.push(username)
     }
   },
   actions: {
@@ -148,6 +169,15 @@ export default new Vuex.Store({
     },
     setVotePower ({dispatch, commit, state}, value) {
       commit('config', {name: 'vote', value: value})
+    },
+    addCommentToIgnore ({dispatch, commit, state}, commentId) {
+      commit('ignoreComment', commentId)
+      dispatch('selectFirstComment')
+      toast.createDialog('success', 'Comments ignored', 2000)
+    },
+    addUserToIgnore ({dispatch, commit, state}, username) {
+      commit('ignoreUser', username)
+      toast.createDialog('success', 'User ignored' + username, 2000)
     }
   },
   getters: {
