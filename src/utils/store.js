@@ -123,8 +123,9 @@ export default new Vuex.Store({
         })
       }
     },
-    clearIgnoreList ({ commit }) {
+    clearIgnoreList ({ dispatch, commit }) {
       commit('clearIgnoreList')
+      dispatch('reload')
     },
     logout ({ commit }) {
       commit('logout')
