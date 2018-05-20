@@ -1,14 +1,18 @@
 // https://stackoverflow.com/questions/40564071/how-do-i-break-up-my-vuex-file
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Storage from 'vue-ls'
+import VueResource from 'vue-resource'
+import VueStorage from 'vue-ls'
 
 import steem from 'steem'
 import sc2 from 'sc2-sdk'
 
+import toast from '@/utils/toast.js'
+
 // Plugin declaration
 Vue.use(Vuex)
-Vue.use(Storage)
+Vue.use(VueResource)
+Vue.use(VueStorage)
 
 // Initialize SteemConnect v2
 var api = sc2.Initialize({
@@ -32,7 +36,17 @@ export default new Vuex.Store({
       vp: null
     },
     config: Vue.ls.get('config', defaultConfig),
-    timers: {}
+    timers: {},
+    inbox: {
+      comments: null, // All raw comments
+      articles: null, // List of all the filters for articles
+      filter: { // Selected filter
+        id: null,
+        title: null
+      },
+      messages: null, // All comments currently shown by the app
+      selectedComment: null // Comments currently selected
+    }
   },
   mutations: {
     clearIgnoreList (state) {
@@ -60,6 +74,40 @@ export default new Vuex.Store({
         clearInterval(state.timers[timer.name])
       }
       state.timers[timer.name] = timer.value
+    },
+    reload (state, result) {
+      let ignoreList = state.config.ignoreList
+      let comments = result.data.comments
+
+      let articles = []
+      let filteredComments = []
+
+      let j = 0
+      let articlesIds = new Set()
+      for (let i = 0; i < comments.length; i++) {
+        let comment = comments[i]
+        if (ignoreList.users.includes(comment.from) || ignoreList.comments.includes(comment.id)) {
+          // Filter comments based on ignore lists
+          continue
+        }
+
+        if (!articlesIds.has(comment.rootId)) {
+          articles[j++] = {
+            id: comment.rootId,
+            title: comment.rootTitle
+          }
+          articlesIds.add(comment.rootId)
+        }
+
+        filteredComments.push(comment)
+      }
+
+      // Persist result to state
+      state.inbox.comments = filteredComments
+      state.inbox.articles = articles
+
+      console.log('Found ' + filteredComments.length + ' new comment(s) on ' + articlesIds.size + ' articles.')
+      toast.createDialog('success', 'Found ' + filteredComments.length + ' comments on ' + articlesIds.size + ' articles.', 5000)
     }
   },
   actions: {
@@ -89,6 +137,15 @@ export default new Vuex.Store({
     },
     timer ({dispatch, commit, state}, timer) {
       commit('timer', timer)
+    },
+    async reload ({dispatch, commit, state}) {
+      let user = state.steemconnect.user
+      if (user) {
+        const url = 'http://api.comprendre-steem.fr/getComments?username=roxane&test=' + user.name // TODO: remove 'roxane&test=' to use logged user
+        // VueJS Ressource plugin: https://github.com/pagekit/vue-resource
+        commit('reload', await Vue.http.get(url))
+        // dispatch('loadMessages')
+      }
     }
   },
   getters: {
