@@ -108,6 +108,14 @@ export default {
     color: red;
   }
 
+  .inbox-messages .active {
+    background-color: lightblue;
+  }
+
+  .active .low-reputation {
+    background-color: lightcoral;
+  }
+
   .inbox-messages .card {
     width: 100%;
   }
