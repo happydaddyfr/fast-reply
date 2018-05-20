@@ -7,7 +7,7 @@
       <router-view/>
     </div>
     <div v-else>
-      <Login :sc2LoginUrl="this.$store.getters.getLoginURL"></Login>
+      <Login :sc2LoginUrl="this.$store.getters.steemconnect.api.getLoginURL()"></Login>
     </div>
   </div>
 </template>

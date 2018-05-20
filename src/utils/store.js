@@ -92,9 +92,6 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    getLoginURL: state => {
-      return state.steemconnect.api.getLoginURL()
-    },
     user: state => {
       return state.steemconnect.user
     },
