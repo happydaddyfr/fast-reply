@@ -10,8 +10,8 @@
             <span class="compose"><i class="fa fa-filter"></i> Filter <em v-if="inbox.filter">: {{ filterCounters[inbox.filter.id] }} x {{ inbox.filter.title | truncate(50) }}</em></span>
           </a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" id="filter-article-all" @click.prevent="changeFilter(null,null)">All articles</a>
-            <a v-for="article in inbox.articles" class="navbar-item" :key="article.id" :id="'filter-article-'+article.id">  <!-- @click.prevent="changeFilter(article.id, article.title)" -->
+            <a class="navbar-item" id="filter-article-all" @click.prevent="selectFilter(null)">All articles</a>
+            <a v-for="article in inbox.articles" class="navbar-item" :key="article.id" :id="'filter-article-'+article.id" @click.prevent="selectFilter(article)">
               {{ filterCounters[article.id] }} x {{ article.title | truncate(50)}}
             </a>
           </div>
@@ -107,6 +107,9 @@ export default {
     },
     reload: function () {
       this.$store.dispatch('reload')
+    },
+    selectFilter: function (article) {
+      this.$store.dispatch('selectFilter', article)
     }
   }
 }

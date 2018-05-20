@@ -40,10 +40,7 @@ export default new Vuex.Store({
     inbox: {
       comments: null, // All raw comments
       articles: null, // List of all the filters for articles
-      filter: { // Selected filter
-        id: null,
-        title: null
-      },
+      filter: null, // selected filter
       messages: null, // All comments currently shown by the app
       selectedComment: null // Comments currently selected
     }
@@ -108,6 +105,9 @@ export default new Vuex.Store({
 
       console.log('Found ' + filteredComments.length + ' new comment(s) on ' + articlesIds.size + ' articles.')
       toast.createDialog('success', 'Found ' + filteredComments.length + ' comments on ' + articlesIds.size + ' articles.', 5000)
+    },
+    selectFilter (state, article) {
+      state.inbox.filter = article
     }
   },
   actions: {
@@ -146,6 +146,9 @@ export default new Vuex.Store({
         commit('reload', await Vue.http.get(url))
         // dispatch('loadMessages')
       }
+    },
+    selectFilter ({commit}, article) {
+      commit('selectFilter', article)
     }
   },
   getters: {
