@@ -18,7 +18,7 @@
             Unfollow @{{ selectedComment.author }}
           </button>
           <button @click.prevent="ignoreAccount(selectedComment.author)" class="button is-danger is-small">
-            Ignore @{{ selectedComment.author }}
+            Mute @{{ selectedComment.author }}
           </button>
         </div>
         <div>
