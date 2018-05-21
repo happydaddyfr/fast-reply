@@ -87,7 +87,6 @@ export default new Vuex.Store({
       state.inbox.comments = result.data.comments
       // Count number of unique rootId among comments
       let articlesCount = state.inbox.comments.map(c => c.rootId).filter((value, index, self) => self.indexOf(value) === index).length
-      console.log('Found', state.inbox.comments.length, 'new comment(s) on', articlesCount, 'articles')
       toast.createDialog('success', 'Found ' + state.inbox.comments.length + ' new comment(s) on ' + articlesCount + ' articles', 5000)
     },
     selectFilter (state, article) {

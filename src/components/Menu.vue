@@ -11,7 +11,7 @@
           </a>
           <div class="navbar-dropdown">
             <router-link class="navbar-item" to="/">Inbox</router-link>
-            <router-link class="navbar-item" to="/hello">Hello</router-link>
+            <router-link class="navbar-item" to="/mentions">Mentions @{{ user.name }}</router-link>
             <router-link class="navbar-item" to="/pending">Pending actions</router-link>
           </div>
         </div>
