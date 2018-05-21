@@ -82,5 +82,6 @@ times...
 future versions will allow you to have a better view on what happens...
 in the mean time any constructive feedback is welcome.
 
-In any case, usage of this software is you responsibility and the authors
-will not take any responsibility of the result of you using it.
+## License
+
+The software is released under MIT License. (see LICENSE)
