@@ -34,7 +34,8 @@
         </div>
       </div>
     </div>
-    <div class="control">
+    <div id="message-reply" class="control" @drop.prevent="onDrop" @dragover.prevent
+         >
       <div class="field">
         <label class="label">Your Vote ({{ vote }}%)</label>
         <div class="control">
@@ -57,7 +58,7 @@
         </div>
       </div>
       <div class="buttons has-addons is-grouped is-centered">
-        <span v-for="emoji in emojiQuickSelector" :key="emoji" class="button is-large" @click.prevent="addEmoji(emoji)">
+        <span v-for="emoji in emojiQuickSelector" :key="emoji" class="button is-large" @click.prevent="addContent(emoji)">
           {{ emoji }}
         </span>
       </div>
@@ -128,18 +129,18 @@ export default {
     changeVote (event) {
       this.$store.dispatch('setVotePower', event.target.value)
     },
-    addEmoji (emoji) {
+    addContent (content) {
       // Inspiration : https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
       let textarea = document.getElementById('reply')
       var startPos = textarea.selectionStart
       var endPos = textarea.selectionEnd
       var scrollTop = textarea.scrollTop
-      this.reply = this.reply.substring(0, startPos) + emoji + this.reply.substring(endPos, this.reply.length)
+      this.reply = this.reply.substring(0, startPos) + content + this.reply.substring(endPos, this.reply.length)
       // Delay caret positioning to allow Vue.js to update the model and the views
       setTimeout(function () {
         textarea.focus()
-        textarea.selectionStart = startPos + emoji.length
-        textarea.selectionEnd = startPos + emoji.length
+        textarea.selectionStart = startPos + content.length
+        textarea.selectionEnd = startPos + content.length
         textarea.scrollTop = scrollTop
         textarea.focus()
       }, 20)
@@ -230,6 +231,24 @@ export default {
         .then(() => app.$store.dispatch('addUserToIgnore', username))
         .then(() => toast.createDialog('success', 'You are now ignoring' + username, '3000'))
         .catch(err => toast.createDialog('error', err, 3000))
+    },
+    // Inspiration https://forum.vuejs.org/t/drop-files-to-drop-zone/3790
+    onDrop: function (e) {
+      var files = e.dataTransfer.files
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData()
+        formData.append('file', files[i])
+
+        let app = this
+        // https://github.com/busyorg/busy/blob/f722ab4d3b0df2ccfce8a5c3e9642b54a8257c69/src/client/components/Editor/withEditor.js#L34-L49
+        fetch(`https://ipfs.busy.org/upload`, {method: 'POST', body: formData})
+          .then(res => res.json())
+          .then(res => app.addContent(app.toImageMarkdown(files[i].name, res.url)))
+          .catch(err => toast.createDialog('error', 'Could not upload image: ' + err, 5000))
+      }
+    },
+    toImageMarkdown: function (name, url) {
+      return '![' + name + '](' + url + ')'
     }
   }
 }
