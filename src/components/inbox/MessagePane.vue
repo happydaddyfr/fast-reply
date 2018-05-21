@@ -88,6 +88,25 @@ export default {
         textarea.focus()
       }, 20)
     },
+    /** Support for dropping images **/
+    // Inspiration https://forum.vuejs.org/t/drop-files-to-drop-zone/3790
+    onDrop: function (e) {
+      var files = e.dataTransfer.files
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData()
+        formData.append('file', files[i])
+
+        let app = this
+        // https://github.com/busyorg/busy/blob/f722ab4d3b0df2ccfce8a5c3e9642b54a8257c69/src/client/components/Editor/withEditor.js#L34-L49
+        fetch(`https://ipfs.busy.org/upload`, {method: 'POST', body: formData})
+          .then(res => res.json())
+          .then(res => app.addContent(app.toImageMarkdown(files[i].name, res.url)))
+          .catch(err => toast.createDialog('error', 'Could not upload image: ' + err, 5000))
+      }
+    },
+    toImageMarkdown: function (name, url) {
+      return '![' + name + '](' + url + ')'
+    },
 
     /** Actions on selected comment **/
     ignoreSelectedComment: function () {
@@ -96,7 +115,6 @@ export default {
         toast.createDialog('success', 'Comments ignored', 2000)
       }
     },
-
     /** Vote/Comment actions are added to spool for later execution **/
     voteSelectedComment: function () {
       if (this.selectedComment) {
@@ -155,26 +173,6 @@ export default {
         created: Date.now(),
         attempts: 0
       })
-    },
-
-    /** Support for dropping images **/
-    // Inspiration https://forum.vuejs.org/t/drop-files-to-drop-zone/3790
-    onDrop: function (e) {
-      var files = e.dataTransfer.files
-      for (let i = 0; i < files.length; i++) {
-        const formData = new FormData()
-        formData.append('file', files[i])
-
-        let app = this
-        // https://github.com/busyorg/busy/blob/f722ab4d3b0df2ccfce8a5c3e9642b54a8257c69/src/client/components/Editor/withEditor.js#L34-L49
-        fetch(`https://ipfs.busy.org/upload`, {method: 'POST', body: formData})
-          .then(res => res.json())
-          .then(res => app.addContent(app.toImageMarkdown(files[i].name, res.url)))
-          .catch(err => toast.createDialog('error', 'Could not upload image: ' + err, 5000))
-      }
-    },
-    toImageMarkdown: function (name, url) {
-      return '![' + name + '](' + url + ')'
     }
   }
 }
