@@ -1,23 +1,13 @@
 <template>
   <div class="column is-4 messages hero is-fullheight" id="message-feed">
     <div class="inbox-messages" id="inbox-messages">
-      <!-- https://vuejs.org/v2/guide/transitions.html -->
-      <!--<transition-->
-        <!--name="custom-classes-transition"-->
-        <!--enter-active-class="animated bounceInRight"-->
-        <!--leave-active-class="animated bounceOutRight">-->
-        <!--<div v-if="dialog != null" class="notification" :class="dialog.type">-->
-          <!--<button class="delete" @click.prevent="closeDialog"></button>-->
-          <!--{{ dialog.data }}-->
-        <!--</div>-->
-      <!--</transition>-->
       <div v-for="msg in messages" class="card" :class="[(selectedComment && selectedComment.id === msg.id) ? 'active' : '']" :key="msg.id" :id="'msg-card-'+msg.id" @click="selectComment(msg)" :data-preview-id="msg.id">
         <div class="card-content" :class="[msg.reputation < 25 ? 'low-reputation': '']">
           <div class="msg-header">
             <a target="_blank" :href="$options.filters.profile(msg.author)">
               <span class="steem-username">@{{ msg.author }} ({{ parseInt(msg.reputation) }})</span>
             </a>
-            <span class="msg-attachment">&nbsp;<a @click="addCommentToIgnore(msg.id)"><icon name="window-close" class="red" scale="0.8"></icon></a></span>
+            <span class="msg-attachment">&nbsp;<a @click="ignoreComment(msg)"><icon name="window-close" class="red" scale="0.8"></icon></a></span>
             <span class="msg-timestamp">{{ msg.created | date }}</span>
           </div>
           <div class="msg-subject">
@@ -43,6 +33,7 @@
 </template>
 
 <script>
+import toast from '@/utils/toast.js'
 export default {
   name: 'message-feed',
   computed: {
@@ -71,6 +62,10 @@ export default {
   methods: {
     selectComment (comment) {
       this.$store.dispatch('selectComment', comment)
+    },
+    ignoreComment (comment) {
+      this.$store.dispatch('markCommentProcessed', comment.id)
+      toast.createDialog('success', 'Comments ignored', 2000)
     }
   }
 }

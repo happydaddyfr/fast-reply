@@ -33,12 +33,12 @@
         <a class="navbar-item" @click.prevent="updateVP">
           <span>{{ votingPower }} <icon name="bolt" scale="0.8"></icon></span>
         </a>
-        <!--a class="navbar-item">
-          <span>{{ pending.comments }} <i class="fas fa-comment-alt"></i></span>
+        <a class="navbar-item">
+          <span>{{ pending | countPending('comment') }} <icon name="comment-alt" scale="0.8"></icon></span>
         </a>
         <a class="navbar-item">
-          <span>{{ pending.votes }} <i class="fas fa-chevron-circle-up"></i></span>
-        </a-->
+          <span>{{ pending | countPending('vote') }} <icon name="chevron-circle-up" scale="0.8"></icon></span>
+        </a>
         <a class="navbar-item" @click.prevent="reload">
           <span>Reload <icon name="sync" scale="0.8"></icon></span>
         </a>
@@ -103,6 +103,14 @@ export default {
           .filter((item, pos, ary) => !pos || item.id !== ary[pos - 1].id)
         return articles
       } else return []
+    },
+    pending () {
+      return this.$store.getters.pending
+    }
+  },
+  filters: {
+    countPending: function (pending, type) {
+      return pending.filter(action => action.type === type).length
     }
   },
   methods: {

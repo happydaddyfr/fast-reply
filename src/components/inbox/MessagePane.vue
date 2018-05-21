@@ -135,57 +135,64 @@ export default {
     /** Actions on selected comment **/
     ignoreSelectedComment: function () {
       if (this.selectedComment) {
-        this.$store.dispatch('addCommentToIgnore', this.selectedComment.id)
+        this.$store.dispatch('markCommentProcessed', this.selectedComment.id)
+        toast.createDialog('success', 'Comments ignored', 2000)
       }
     },
 
     /** Vote/Comment actions are added to spool for later execution **/
-    voteSelectedComment: function() {
+    voteSelectedComment: function () {
       if (this.selectedComment) {
-        this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote);
-
-        this.removeComment(this.selectedComment.id);
-        this.ignore["comments"].push(this.selectedComment.id);
-        this.loadMessages();
-      } else {
-        alert('No comment selected');
+        this.$store.dispatch('addPendingAction', {
+          type: 'vote',
+          author: this.selectedComment.author,
+          permlink: this.selectedComment.permlink,
+          vote: this.vote
+        })
+        this.$store.dispatch('markCommentProcessed', this.selectedComment.id)
       }
     },
-    // replyToSelectedComment: function() {
-    //   if (this.selectedComment) {
-    //     let body = $('.message .control .reply').val();
-    //     if (body.length == 0) {
-    //       alert('Comment is empty');
-    //     } else {
-    //       this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
-    //
-    //       this.removeComment(this.selectedComment.id);
-    //       this.ignore["comments"].push(this.selectedComment.id);
-    //       this.loadMessages();
-    //     }
-    //   } else {
-    //     alert('No comment selected');
-    //   }
-    // },
-    // voteAndReplyToSelectedComment: function() {
-    //   if (this.selectedComment) {
-    //     let body = $('.message .control .reply').val();
-    //     if (body.length == 0) {
-    //       alert('Comment is empty');
-    //     } else {
-    //       this.replyComment(this.selectedComment.from, this.selectedComment.permlink, body);
-    //       if (this.vote > 0) {
-    //         // If vote is defined, also vote on the comment
-    //         this.voteComment(this.selectedComment.from, this.selectedComment.permlink, this.vote * 100);
-    //       }
-    //       this.removeComment(this.selectedComment.id);
-    //       this.ignore["comments"].push(this.selectedComment.id);
-    //       this.loadMessages();
-    //     }
-    //   } else {
-    //     alert('No comment selected');
-    //   }
-    // },
+    replyToSelectedComment: function () {
+      if (this.selectedComment) {
+        let body = document.getElementById('reply').value
+        if (body.length === 0) {
+          toast.createDialog('error', 'Comment is empty', 1500)
+        } else {
+          this.$store.dispatch('addPendingAction', {
+            type: 'comment',
+            author: this.selectedComment.author,
+            permlink: this.selectedComment.permlink,
+            body: body
+          })
+          this.$store.dispatch('markCommentProcessed', this.selectedComment.id)
+        }
+      }
+    },
+    voteAndReplyToSelectedComment: function () {
+      if (this.selectedComment) {
+        let body = document.getElementById('reply').value
+        if (body.length === 0) {
+          toast.createDialog('error', 'Comment is empty', 1500)
+        } else {
+          this.$store.dispatch('addPendingAction', {
+            type: 'vote',
+            author: this.selectedComment.author,
+            permlink: this.selectedComment.permlink,
+            vote: this.vote
+          })
+          if (this.vote > 0) {
+            // If vote is defined, also vote on the comment
+            this.$store.dispatch('addPendingAction', {
+              type: 'comment',
+              author: this.selectedComment.author,
+              permlink: this.selectedComment.permlink,
+              body: body
+            })
+          }
+          this.$store.dispatch('markCommentProcessed', this.selectedComment.id)
+        }
+      }
+    },
 
     /**  SteemConnect v2 -- Direct actions **/
     followAccount: function (username) {
@@ -199,7 +206,9 @@ export default {
         .catch(err => toast.createDialog('error', err, 3000))
     },
     ignoreAccount: function (username) {
+      let app = this
       sc2Utils.ignore(this.api, this.me, username)
+        .then(() => app.$store.dispatch('addUserToIgnore', username))
         .then(() => toast.createDialog('success', 'You are now ignoring' + username, '3000'))
         .catch(err => toast.createDialog('error', err, 3000))
     }

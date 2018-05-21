@@ -37,6 +37,9 @@ const filterIgnored = function (comments, filter, ignoreList) {
     : null
 }
 
+const LS_CONFIG = 'config'
+const LS_PENDING = 'pending'
+
 // Create Global Store
 export default new Vuex.Store({
   state: {
@@ -45,13 +48,14 @@ export default new Vuex.Store({
       user: null,
       vp: null
     },
-    config: Vue.ls.get('config', defaultConfig),
+    config: Vue.ls.get(LS_CONFIG, defaultConfig),
     timers: {},
     inbox: {
       comments: null,
       filter: null,
       selectedComment: null
-    }
+    },
+    pending: Vue.ls.get(LS_PENDING, [])
   },
   mutations: {
     clearIgnoreList (state) {
@@ -70,7 +74,7 @@ export default new Vuex.Store({
     },
     config (state, {name, value}) {
       state.config[name] = value
-      Vue.ls.set('config', state.config)
+      Vue.ls.set(LS_CONFIG, state.config)
     },
     timer (state, timer) {
       if (state.timers[timer]) {
@@ -115,6 +119,10 @@ export default new Vuex.Store({
       }
       // Push to ignore list
       state.config.ignoreList.users.push(username)
+    },
+    addPendingAction (state, action) {
+      state.pending.push(action)
+      Vue.ls.set(LS_PENDING, state.pending)
     }
   },
   actions: {
@@ -174,14 +182,16 @@ export default new Vuex.Store({
     setVotePower ({dispatch, commit, state}, value) {
       commit('config', {name: 'vote', value: value})
     },
-    addCommentToIgnore ({dispatch, commit, state}, commentId) {
+    markCommentProcessed ({dispatch, commit, state}, commentId) {
       commit('ignoreComment', commentId)
       dispatch('selectFirstComment')
-      toast.createDialog('success', 'Comments ignored', 2000)
     },
     addUserToIgnore ({dispatch, commit, state}, username) {
       commit('ignoreUser', username)
       toast.createDialog('success', 'User ignored' + username, 2000)
+    },
+    addPendingAction ({dispatch, commit, state}, action) {
+      commit('addPendingAction', action)
     }
   },
   getters: {
@@ -200,6 +210,9 @@ export default new Vuex.Store({
         selectedComment: state.inbox.selectedComment,
         comments: filterIgnored(state.inbox.comments, state.inbox.filter, state.config.ignoreList)
       }
+    },
+    pending: state => {
+      return state.pending
     }
   }
 })
