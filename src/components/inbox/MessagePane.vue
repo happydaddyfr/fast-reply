@@ -180,6 +180,7 @@ export default {
         type: 'vote',
         author: this.selectedComment.author,
         title: this.selectedComment.rootTitle,
+        url: this.selectedComment.url,
         permlink: this.selectedComment.permlink,
         vote: this.vote,
         created: Date.now()
@@ -190,6 +191,7 @@ export default {
         type: 'comment',
         author: this.selectedComment.author,
         title: this.selectedComment.rootTitle,
+        url: this.selectedComment.url,
         permlink: this.selectedComment.permlink,
         body: body,
         created: Date.now()
