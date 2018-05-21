@@ -48,7 +48,7 @@
             <a class="navbar-item" @click.prevent="reload"><icon name="sync" scale="0.6"></icon>&nbsp;Reload inbox</a>
             <a class="navbar-item" @click.prevent="clearIgnoreList"><icon name="eraser" scale="0.6"></icon>&nbsp;Clear ignore list</a>
             <hr class="navbar-divider">
-            <a href="https://v2.steemconnect.com/sign/transfer?amount=3%20SBD&memo=Donation%20(%20Fast-Reply%20)&to=comprendre-steem" target="_blank" class="navbar-item"><icon name="donate" scale="0.6"></icon>&nbsp;Donate</a>
+            <a :href="donateUrl({to:'comprendre-steem', amount: 3, currency:'SBD', memo:'Donation (Fast-Reply)'})" target="_blank" class="navbar-item"><icon name="donate" scale="0.6"></icon>&nbsp;Donate</a>
             <a @click.prevent="logout" href="#" class="navbar-item"><icon name="power-off" scale="0.6"></icon>&nbsp;Logout</a>
           </div>
         </div>
@@ -148,6 +148,14 @@ export default {
     },
     toggleScheduler: function () {
       this.$store.dispatch('toggleScheduler')
+    },
+
+    /** Use SteemConnect to sign a transfer transaction **/
+    donateUrl: function ({to, amount, currency, memo}) {
+      return encodeURI('https://v2.steemconnect.com/sign/transfer?' +
+        'to=' + to +
+        '&amount=' + amount + ' ' + currency +
+        '&memo=' + memo)
     }
   }
 }

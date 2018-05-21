@@ -47,9 +47,13 @@
         </div>
       </div>
       <div class="field">
-        <label class="label">Your Fast Reply</label>
-        <div class="control">
-          <textarea id="reply" class="textarea reply" type="text" placeholder="Reply here..."></textarea>
+        <label class="label">Your Fast Reply (<a @click="preview = !preview">Preview</a>)</label>
+        <div class="control columns">
+          <div class="column" :class="[preview ? 'is-6' : 'is-12']">
+            <textarea id="reply" class="textarea reply" type="text" v-model="reply" placeholder="Reply here..."></textarea>
+          </div>
+          <div id="preview" v-if="preview" class="column is-6" v-html="$options.filters.markdownToHTML(reply)">
+          </div>
         </div>
       </div>
       <div class="buttons has-addons is-grouped is-centered">
@@ -81,12 +85,18 @@ import sc2Utils from '@/utils/sc2-utils.js'
 
 export default {
   name: 'message-pane',
+  data () {
+    return {
+      reply: '',
+      preview: false
+    }
+  },
   watch: {
     selectedComment (after, before) {
       if (after != null) {
-        let reply = document.getElementById('reply')
-        reply.value = '@' + after.author + ' '
-        reply.focus()
+        this.reply = '@' + after.author + ' '
+        let textarea = document.getElementById('reply')
+        textarea.focus()
       }
     }
   },
@@ -120,16 +130,19 @@ export default {
     },
     addEmoji (emoji) {
       // Inspiration : https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
-      let reply = document.getElementById('reply')
-      var startPos = reply.selectionStart
-      var endPos = reply.selectionEnd
-      var scrollTop = reply.scrollTop
-      reply.value = reply.value.substring(0, startPos) + emoji + reply.value.substring(endPos, reply.value.length)
-      reply.focus()
-      reply.selectionStart = startPos + emoji.length
-      reply.selectionEnd = startPos + emoji.length
-      reply.scrollTop = scrollTop
-      reply.focus()
+      let textarea = document.getElementById('reply')
+      var startPos = textarea.selectionStart
+      var endPos = textarea.selectionEnd
+      var scrollTop = textarea.scrollTop
+      this.reply = this.reply.substring(0, startPos) + emoji + this.reply.substring(endPos, this.reply.length)
+      // Delay caret positioning to allow Vue.js to update the model and the views
+      setTimeout(function () {
+        textarea.focus()
+        textarea.selectionStart = startPos + emoji.length
+        textarea.selectionEnd = startPos + emoji.length
+        textarea.scrollTop = scrollTop
+        textarea.focus()
+      }, 20)
     },
 
     /** Actions on selected comment **/
@@ -223,5 +236,9 @@ export default {
 </script>
 
 <style scoped>
-
+#reply, #preview {
+  height: 100%;
+  max-height: initial;
+  box-sizing: border-box;
+}
 </style>

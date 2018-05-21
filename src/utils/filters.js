@@ -27,7 +27,18 @@ Vue.filter('markdownToHTML', function (value) {
   // TODO: check if content is indeed markdown (via API)
   // Transform Markdown markup into HTML
   // ShowDownJS: https://github.com/showdownjs/showdown
-  return new showdown.Converter().makeHtml(value)
+  return new showdown.Converter({
+    tables: true,
+    tablesHeaderId: true,
+    ghMentions: true,
+    ghMentionsLink: 'https://steemit.com/@{u}',
+    strikethrough: true,
+    simplifiedAutoLink: true,
+    excludeTrailingPunctuationFromURLs: true,
+    smoothLivePreview: true,
+    disableForced4SpacesIndentedSublists: true,
+    simpleLineBreaks: true
+  }).makeHtml(value)
 })
 
 Vue.filter('date', function (date) {
