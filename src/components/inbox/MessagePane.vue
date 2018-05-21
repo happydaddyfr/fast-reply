@@ -1,39 +1,6 @@
 <template>
   <div class="column is-8 message hero is-fullheight" id="message-pane" v-show="selectedComment">
-    <div class="box message-preview">
-      <div v-if="selectedComment" class="top">
-        <div class="avatar">
-          <img :src="$options.filters.avatar(selectedComment.author)">
-        </div>
-        <div class="address">
-          <div class="steem-username">
-            <a target="_blank" :href="$options.filters.profile(selectedComment.author)">
-              @{{ selectedComment.author }} ({{ parseInt(selectedComment.reputation) }})
-            </a>
-          </div>
-          <button @click.prevent="followAccount(selectedComment.author)" class="button is-success is-small">
-            Follow @{{ selectedComment.author }}
-          </button>
-          <button @click.prevent="unfollowAccount(selectedComment.author)" class="button is-warning is-small">
-            Unfollow @{{ selectedComment.author }}
-          </button>
-          <button @click.prevent="ignoreAccount(selectedComment.author)" class="button is-danger is-small">
-            Mute @{{ selectedComment.author }}
-          </button>
-        </div>
-        <div>
-          <span class="subject"><strong>{{ selectedComment.rootTitle }}</strong></span>
-          <span class="msg-attachment">
-              <a target="_blank" :href="$options.filters.steemit(selectedComment.url)">
-                  <icon name="external-link-alt" scale="0.8"></icon>
-              </a>
-          </span>
-        </div>
-        <hr>
-        <div class="content" v-html="$options.filters.markdownToHTML(selectedComment.body)">
-        </div>
-      </div>
-    </div>
+    <MessagePanePreview></MessagePanePreview>
     <div id="message-reply" class="control" @drop.prevent="onDrop" @dragover.prevent>
       <div class="field">
         <label class="label">Your Vote ({{ vote }}%)</label>
@@ -81,10 +48,11 @@
 
 <script>
 import toast from '@/utils/toast.js'
-import sc2Utils from '@/utils/sc2-utils.js'
+import MessagePanePreview from '@/components/inbox/MessagePanePreview'
 
 export default {
   name: 'message-pane',
+  components: { MessagePanePreview },
   data () {
     return {
       reply: '',
@@ -112,22 +80,17 @@ export default {
     },
     emojiQuickSelector () {
       return ['👍', '😀', '😘', '😍', '😆', '😎', '😅', '😂', '😱', '🙏', '🙄', '😭', '🇧🇪']
-    },
-    api () {
-      return this.$store.getters.steemconnect.api
-    },
-    me () {
-      return this.$store.getters.steemconnect.user.name
     }
   },
   methods: {
-    // TODO regroup vote methods
+    // TODO regroup change vote methods
     setVote (value) {
       this.$store.dispatch('setVotePower', value)
     },
     changeVote (event) {
       this.$store.dispatch('setVotePower', event.target.value)
     },
+    /** Add content to textarea using the current selection **/
     addContent (content) {
       // Inspiration : https://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
       let textarea = document.getElementById('reply')
@@ -162,7 +125,7 @@ export default {
     },
     replyToSelectedComment: function () {
       if (this.selectedComment) {
-        let body = document.getElementById('reply').value
+        let body = this.reply
         if (body.length === 0) {
           toast.createDialog('error', 'Comment is empty', 1500)
         } else {
@@ -173,7 +136,7 @@ export default {
     },
     voteAndReplyToSelectedComment: function () {
       if (this.selectedComment) {
-        let body = document.getElementById('reply').value
+        let body = this.reply
         if (body.length === 0) {
           toast.createDialog('error', 'Comment is empty', 1500)
         } else {
@@ -213,24 +176,7 @@ export default {
       })
     },
 
-    /**  SteemConnect v2 -- Direct actions **/
-    followAccount: function (username) {
-      sc2Utils.follow(this.api, this.me, username)
-        .then(() => toast.createDialog('success', 'You are now following ' + username, '3000'))
-        .catch(err => toast.createDialog('error', err, 3000))
-    },
-    unfollowAccount: function (username) {
-      sc2Utils.unfollow(this.api, this.me, username)
-        .then(() => toast.createDialog('success', 'You are not following ' + username + ' anymore', '3000'))
-        .catch(err => toast.createDialog('error', err, 3000))
-    },
-    ignoreAccount: function (username) {
-      let app = this
-      sc2Utils.ignore(this.api, this.me, username)
-        .then(() => app.$store.dispatch('addUserToIgnore', username))
-        .then(() => toast.createDialog('success', 'You are now ignoring' + username, '3000'))
-        .catch(err => toast.createDialog('error', err, 3000))
-    },
+    /** Support for dropping images **/
     // Inspiration https://forum.vuejs.org/t/drop-files-to-drop-zone/3790
     onDrop: function (e) {
       var files = e.dataTransfer.files
