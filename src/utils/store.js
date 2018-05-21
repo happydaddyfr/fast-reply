@@ -137,6 +137,14 @@ export default new Vuex.Store({
       state.pending = state.pending.filter(a => a !== action)
       Vue.ls.set(LS_PENDING, state.pending)
     },
+    failedAttempt (state, action) {
+      // Search for action in state
+      let failedAction = state.pending.find(item => item === action)
+      if (failedAction) {
+        // if found, increase attempts counter
+        failedAction.attempts++
+      }
+    },
     isSchedulerRunning (state, value) {
       state.isSchedulerRunning = value
       Vue.ls.set(LS_RUNNING, state.isSchedulerRunning)
@@ -222,6 +230,7 @@ export default new Vuex.Store({
             .then(() => commit('deletePendingAction', action))
             .catch(err => {
               // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds.', 10000)
+              commit('failedAttempt', action)
               console.log(err)
             })
           break
@@ -231,6 +240,7 @@ export default new Vuex.Store({
             .then(() => commit('deletePendingAction', action))
             .catch(err => {
               // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds. Please verify you have not already voted for this comment.', 10000)
+              commit('failedAttempt', action)
               console.log(err)
             })
           break
