@@ -22,7 +22,7 @@
     </table>
 
     <div class="center" v-if="loading">
-      <icon name="sync" scale="5" spin></icon>
+      <icon name="circle-notch" scale="5" spin></icon>
     </div>
 
   </div>

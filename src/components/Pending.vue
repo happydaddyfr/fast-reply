@@ -6,7 +6,8 @@
         <th><abbr title="Position">#</abbr></th>
         <th>Type</th>
         <th>Author</th>
-        <th>Permlink</th>
+        <th>Article</th>
+        <th>Date</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -15,7 +16,8 @@
         <th>{{ pending.indexOf(action) }}</th>
         <td>{{ action.type }} {{ action.type == 'vote' ? '(' + action.vote + '%)' : '' }}</td>
         <td>{{ action.author }}</td>
-        <td>{{ action.permlink }}</td>
+        <td><a :href="$options.filters.steemit(action.permlink)" target="_blank">{{ action.title }}</a></td>
+        <td>{{ action.created | timestamp }}</td>
         <td class="center"><icon name="play" scale="0.8"></icon> <icon name="window-close" class="red" scale="0.8"></icon></td>
         </tr>
       </tbody>

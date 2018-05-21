@@ -143,12 +143,7 @@ export default {
     /** Vote/Comment actions are added to spool for later execution **/
     voteSelectedComment: function () {
       if (this.selectedComment) {
-        this.$store.dispatch('addPendingAction', {
-          type: 'vote',
-          author: this.selectedComment.author,
-          permlink: this.selectedComment.permlink,
-          vote: this.vote
-        })
+        this.toVoteAction()
         this.$store.dispatch('markCommentProcessed', this.selectedComment.id)
       }
     },
@@ -158,12 +153,7 @@ export default {
         if (body.length === 0) {
           toast.createDialog('error', 'Comment is empty', 1500)
         } else {
-          this.$store.dispatch('addPendingAction', {
-            type: 'comment',
-            author: this.selectedComment.author,
-            permlink: this.selectedComment.permlink,
-            body: body
-          })
+          this.toCommentAction(body)
           this.$store.dispatch('markCommentProcessed', this.selectedComment.id)
         }
       }
@@ -174,24 +164,36 @@ export default {
         if (body.length === 0) {
           toast.createDialog('error', 'Comment is empty', 1500)
         } else {
-          this.$store.dispatch('addPendingAction', {
-            type: 'vote',
-            author: this.selectedComment.author,
-            permlink: this.selectedComment.permlink,
-            vote: this.vote
-          })
+          this.toVoteAction()
           if (this.vote > 0) {
             // If vote is defined, also vote on the comment
-            this.$store.dispatch('addPendingAction', {
-              type: 'comment',
-              author: this.selectedComment.author,
-              permlink: this.selectedComment.permlink,
-              body: body
-            })
+            this.toCommentAction(body)
           }
           this.$store.dispatch('markCommentProcessed', this.selectedComment.id)
         }
       }
+    },
+
+    /** Add pending actions - for Scheduler **/
+    toVoteAction: function () {
+      this.$store.dispatch('addPendingAction', {
+        type: 'vote',
+        author: this.selectedComment.author,
+        title: this.selectedComment.rootTitle,
+        permlink: this.selectedComment.permlink,
+        vote: this.vote,
+        created: Date.now()
+      })
+    },
+    toCommentAction: function (body) {
+      this.$store.dispatch('addPendingAction', {
+        type: 'comment',
+        author: this.selectedComment.author,
+        title: this.selectedComment.rootTitle,
+        permlink: this.selectedComment.permlink,
+        body: body,
+        created: Date.now()
+      })
     },
 
     /**  SteemConnect v2 -- Direct actions **/

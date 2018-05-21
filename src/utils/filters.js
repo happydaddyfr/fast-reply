@@ -35,6 +35,12 @@ Vue.filter('date', function (date) {
   return new Date(Date.parse(date)).toLocaleDateString()
 })
 
+Vue.filter('timestamp', function (timestamp) {
+  // Format timestamp from UTC to locale Date
+  let ts = new Date(timestamp)
+  return ts.toLocaleDateString() + ' @ ' + ts.toLocaleTimeString()
+})
+
 Vue.filter('steemit', function (path) {
   return 'https://www.steemit.com' + path
 })
