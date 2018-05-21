@@ -1,11 +1,11 @@
 # Fast-Reply
 
-This web tool started as a proof of concept. The goal was to find a
-way to :
+This web tool started as a proof of concept. 
+The goal was to find a way to :
 
-- find unanswered comments
-- provide the ability to vote and comment back
-- no wait the blockchain delay between actions
+- Find unanswered comments
+- Provide the ability to vote and comment in an efficient way
+- Not wait the blockchain delay between actions
 
 It is now growing past those features. Stay tuned for updates !
 
@@ -16,25 +16,41 @@ A live demo is available: [HERE](http://fast-reply.surge.sh)
 ## Technical stuff
 
 Fast-Reply is written in Vue.js. This is a client-side only tool,
-so all you need is a webserver. For the live demo we are using Surge.sh
-(check it out if you do not known it, it's awesome!), but you can also
-run it locally (see here under for examples), the application will then 
-be available  on [http://localhost:8080](http://localhost:8080)
+so all you need is node and npm. For the live demo we are using 
+Surge.sh (check it out if you do not known it, it's awesome!), 
+but you can also run it locally (see here under for examples), 
+the application will then be available on 
+[http://localhost:8080](http://localhost:8080)
 
-### npm
-``` 
-> sudo npm install http-server -g
-> http-server -p 8080 .
-``` 
+## Build Setup
 
-### docker
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:8080
+npm run dev
+
+# build for production with minification
+npm run build
+
+# build for production and view the bundle analyzer report
+npm run build --report
+
+# run unit tests
+npm run unit
+
+# run e2e tests
+npm run e2e
+
+# run all tests
+npm test
 ```
-> docker run -d \
-    --name fast-reply \
-    -p 8080:80 \
-    -v "$PWD":/usr/local/apache2/htdocs/ \
-    httpd
-```
+
+For a detailed explanation on how things work, check out the 
+[guide](http://vuejs-templates.github.io/webpack/) and 
+[docs for vue-loader](http://vuejs.github.io/vue-loader).
+
 
 ### Security
 
@@ -62,8 +78,6 @@ Steem and its ecosystem for almost one year.
 
 @oroger is more focused on the technical understanding and support
 regarding the blockchain and development aspects.
-
-Many french-speaking have participated to @comprendre-steem projects.
 
 ## Disclaimer
 
