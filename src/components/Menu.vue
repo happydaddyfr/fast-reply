@@ -2,19 +2,12 @@
   <nav class="navbar has-shadow is-fixed-top">
     <div class="container">
       <div class="navbar-brand">
-        <a class="navbar-item" href="#/">
+        <router-link class="navbar-item" to="/">
           <img src="../assets/menu/fast-reply-icon.png" alt="Waiting no more">Fast-Reply
-        </a>
-        <div class="navbar-item has-dropdown is-hoverable" v-if="user">
-          <a class="navbar-link">
-            <span class="compose"><icon name="eye" scale="1"></icon> Views</span>
-          </a>
-          <div class="navbar-dropdown">
-            <router-link class="navbar-item" to="/">Inbox</router-link>
-            <router-link class="navbar-item" to="/mentions">Mentions @{{ user.name }}</router-link>
-            <router-link class="navbar-item" to="/pending">Pending actions</router-link>
-          </div>
-        </div>
+        </router-link>
+        <router-link class="navbar-item" to="/" v-tooltip.bottom="'Remaining comments'">
+          <span v-if="inbox.comments">{{ inbox.comments.length }} <icon name="inbox" scale="0.8"></icon></span>
+        </router-link>
         <div class="navbar-item has-dropdown is-hoverable" v-if="user">
           <a class="navbar-link">
             <span class="compose"><icon name="filter" scale="0.8"></icon> Filter <em v-if="inbox.filter">: {{ filterCounters[inbox.filter.id] }} x {{ inbox.filter.title | truncate(50) }}</em></span>
@@ -28,31 +21,35 @@
         </div>
       </div>
       <div class="navbar-end" v-if="user">
-        <a class="navbar-item" v-tooltip.bottom="'Remaining comments'">
-          <span v-if="inbox.comments">{{ inbox.comments.length }} <icon name="inbox" scale="0.8"></icon></span>
+        <a class="navbar-item" :class="'red'" @click.prevent="toggleScheduler" v-tooltip.bottom="'Start/Stop event sending'">
+          <span><icon name="play" scale="0.8"></icon></span>
+          <!-- TODO : Toggle button => color -->
+          <span><icon name="pause" scale="0.8"></icon></span>
         </a>
+        <router-link class="navbar-item" to="/pending" v-tooltip.bottom="'Pending comments'">
+          <span>{{ pending | countPending('comment') }} <icon name="comment-alt" scale="0.8"></icon></span>
+        </router-link>
+          <router-link class="navbar-item" to="/pending" v-tooltip.bottom="'Pending votes'">
+          <span>{{ pending | countPending('vote') }} <icon name="chevron-circle-up" scale="0.8"></icon></span>
+        </router-link>
         <a class="navbar-item" @click.prevent="updateVP" v-tooltip.bottom="'Voting Power'">
           <span>{{ votingPower }} <icon name="bolt" scale="0.8"></icon></span>
-        </a>
-        <a class="navbar-item" v-tooltip.bottom="'Pending comments'">
-          <span>{{ pending | countPending('comment') }} <icon name="comment-alt" scale="0.8"></icon></span>
-        </a>
-        <a class="navbar-item" v-tooltip.bottom="'Pending votes'">
-          <span>{{ pending | countPending('vote') }} <icon name="chevron-circle-up" scale="0.8"></icon></span>
-        </a>
-        <a class="navbar-item" @click.prevent="reload">
-          <span>Reload <icon name="sync" scale="0.8"></icon></span>
         </a>
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
             {{ user.name }}
           </a>
           <div class="navbar-dropdown">
-            <a target="_blank" href="https://steemconnect.com/dashboard" class="navbar-item">SteemConnect Dashboard</a>
-            <a target="_blank" :href="$options.filters.profile(user.name)" class="navbar-item">Steemit Profile</a>
-            <a class="navbar-item" @click.prevent="clearIgnoreList">Clear ignore list</a>
+            <a target="_blank" :href="$options.filters.profile(user.name)" class="navbar-item"><icon name="user" scale="0.6"></icon>&nbsp;Steemit Profile</a>
+            <router-link class="navbar-item" to="/mentions" v-tooltip.bottom="'See Mentions'">
+              <span><icon name="at" scale="0.6"></icon>&nbsp;Mentions @{{ user.name }}</span>
+            </router-link>
+            <a target="_blank" href="https://steemconnect.com/dashboard" class="navbar-item"><icon name="cog" scale="0.6"></icon>&nbsp;SteemConnect Dashboard</a>
             <hr class="navbar-divider">
-            <a @click.prevent="logout" href="#" class="navbar-item">Logout</a>
+            <a class="navbar-item" @click.prevent="reload"><icon name="sync" scale="0.6"></icon>&nbsp;Reload inbox</a>
+            <a class="navbar-item" @click.prevent="clearIgnoreList"><icon name="eraser" scale="0.6"></icon>&nbsp;Clear ignore list</a>
+            <hr class="navbar-divider">
+            <a @click.prevent="logout" href="#" class="navbar-item"><icon name="power-off" scale="0.6"></icon>&nbsp;Logout</a>
           </div>
         </div>
       </div>
