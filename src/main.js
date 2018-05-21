@@ -37,11 +37,20 @@ new Vue({
   },
   mounted () {
     const SECOND = 1000
-    const MINUTE = 60 * SECOND
+
+    /** Start infinite execution of trigger action **/
+    // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
 
     // refresh VP every minute
-    // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
-    let vpTimer = setInterval(this.$store.dispatch, MINUTE, 'updateVP')
+    let vpTimer = setInterval(this.$store.dispatch, 60 * SECOND, 'updateVP')
     this.$store.dispatch('timer', {name: 'updateVP', value: vpTimer})
+
+    // execute a pending vote every 5 seconds
+    let voteTimer = setInterval(this.$store.dispatch, 5 * SECOND, 'executeNextPendingActionOfType', 'vote')
+    this.$store.dispatch('timer', {name: 'executeNextPendingVote', value: voteTimer})
+
+    // execute a pending comment every 30 seconds
+    let commentTimer = setInterval(this.$store.dispatch, 30 * SECOND, 'executeNextPendingActionOfType', 'comment')
+    this.$store.dispatch('timer', {name: 'executeNextPendingComment', value: commentTimer})
   }
 })

@@ -21,9 +21,8 @@
         </div>
       </div>
       <div class="navbar-end" v-if="user">
-        <a class="navbar-item" :class="'red'" @click.prevent="toggleScheduler" v-tooltip.bottom="'Start/Stop event sending'">
+        <a class="navbar-item" :class="[isSchedulerRunning ? 'green' : 'red']" @click.prevent="toggleScheduler" v-tooltip.bottom="'Start/Stop event sending'">
           <span><icon name="play" scale="0.8"></icon></span>
-          <!-- TODO : Toggle button => color -->
           <span><icon name="pause" scale="0.8"></icon></span>
         </a>
         <router-link class="navbar-item" to="/pending" v-tooltip.bottom="'Pending comments'">
@@ -42,7 +41,7 @@
           <div class="navbar-dropdown">
             <a target="_blank" :href="$options.filters.profile(user.name)" class="navbar-item"><icon name="user" scale="0.6"></icon>&nbsp;Steemit Profile</a>
             <router-link class="navbar-item" to="/mentions" v-tooltip.bottom="'See Mentions'">
-              <span><icon name="at" scale="0.6"></icon>&nbsp;Mentions @{{ user.name }}</span>
+              <span><icon name="at" scale="0.6"></icon>&nbsp;Mentions @{{ user.name }}</span>
             </router-link>
             <a target="_blank" href="https://steemconnect.com/dashboard" class="navbar-item"><icon name="cog" scale="0.6"></icon>&nbsp;SteemConnect Dashboard</a>
             <hr class="navbar-divider">
@@ -106,6 +105,9 @@ export default {
     },
     pending () {
       return this.$store.getters.pending
+    },
+    isSchedulerRunning () {
+      return this.$store.getters.isSchedulerRunning
     }
   },
   filters: {
@@ -142,6 +144,9 @@ export default {
     },
     selectFilter: function (article) {
       this.$store.dispatch('selectFilter', article)
+    },
+    toggleScheduler: function () {
+      this.$store.dispatch('toggleScheduler')
     }
   }
 }

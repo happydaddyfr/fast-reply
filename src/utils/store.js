@@ -6,6 +6,7 @@ import VueStorage from 'vue-ls'
 // Steem Libs
 import steem from 'steem'
 import sc2 from 'sc2-sdk'
+import sc2Utils from '@/utils/sc2-utils.js'
 // Utils
 import toast from '@/utils/toast.js'
 
@@ -18,6 +19,7 @@ Vue.use(VueStorage)
 var api = sc2.Initialize({
   app: 'fast-reply.app',
   callbackURL: 'http://localhost:8080/#/steemconnect', // Dev localhost URL
+  // callbackURL: 'http://very-fast-reply.surge.sh/#/steemconnect', // Beta URL
   // callbackURL: 'http://fast-reply.surge.sh/steemconnect/',  // Live demo URL
   scope: ['vote', 'comment', 'custom_json']
 })
@@ -39,6 +41,7 @@ const filterIgnored = function (comments, filter, ignoreList) {
 
 const LS_CONFIG = 'config'
 const LS_PENDING = 'pending'
+const LS_RUNNING = 'running'
 
 // Create Global Store
 export default new Vuex.Store({
@@ -55,7 +58,8 @@ export default new Vuex.Store({
       filter: null,
       selectedComment: null
     },
-    pending: Vue.ls.get(LS_PENDING, [])
+    pending: Vue.ls.get(LS_PENDING, []),
+    isSchedulerRunning: Vue.ls.get(LS_RUNNING, true)
   },
   mutations: {
     clearIgnoreList (state) {
@@ -80,8 +84,12 @@ export default new Vuex.Store({
       if (state.timers[timer]) {
         // Remove previous interval, if set
         clearInterval(state.timers[timer.name])
+        state.timers[timer] = null
       }
-      state.timers[timer.name] = timer.value
+
+      if (timer.value) {
+        state.timers[timer.name] = timer.value
+      }
     },
     reload (state, result) {
       state.inbox.comments = result.data.comments
@@ -119,9 +127,19 @@ export default new Vuex.Store({
       // Push to ignore list
       state.config.ignoreList.users.push(username)
     },
+
+    /** Managing pending actions **/
     addPendingAction (state, action) {
       state.pending.push(action)
       Vue.ls.set(LS_PENDING, state.pending)
+    },
+    deletePendingAction (state, action) {
+      state.pending = state.pending.filter(a => a !== action)
+      Vue.ls.set(LS_PENDING, state.pending)
+    },
+    isSchedulerRunning (state, value) {
+      state.isSchedulerRunning = value
+      Vue.ls.set(LS_RUNNING, state.isSchedulerRunning)
     }
   },
   actions: {
@@ -159,7 +177,7 @@ export default new Vuex.Store({
     async reload ({dispatch, commit, state}) {
       let user = state.steemconnect.user
       if (user) {
-        const url = 'http://api.comprendre-steem.fr/getComments?username=roxane&test=' + user.name // TODO: remove 'roxane&test=' to use logged user
+        const url = 'http://api.comprendre-steem.fr/getComments?username=' + user.name
         commit('reload', await Vue.http.get(url))
         dispatch('selectFirstComment')
       }
@@ -189,8 +207,58 @@ export default new Vuex.Store({
       commit('ignoreUser', username)
       toast.createDialog('success', 'User ignored' + username, 2000)
     },
+
+    /** Managing pending actions **/
     addPendingAction ({dispatch, commit, state}, action) {
       commit('addPendingAction', action)
+    },
+    deletePendingAction ({dispatch, commit, state}, action) {
+      commit('deletePendingAction', action)
+    },
+    executePendingAction ({dispatch, commit, state}, action) {
+      switch (action.type) {
+        case 'comment': {
+          sc2Utils.comment(state.steemconnect.api, state.steemconnect.user.name, action.author, action.permlink, action.body)
+            .then(() => commit('deletePendingAction', action))
+            .catch(err => {
+              // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds.', 10000)
+              console.log(err)
+            })
+          break
+        }
+        case 'vote': {
+          sc2Utils.vote(state.steemconnect.api, state.steemconnect.user.name, action.author, action.permlink, action.vote)
+            .then(() => commit('deletePendingAction', action))
+            .catch(err => {
+              // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds. Please verify you have not already voted for this comment.', 10000)
+              console.log(err)
+            })
+          break
+        }
+        default: {
+          toast.createDialog('error', 'Unknown action: ' + action.type, 3000)
+          break
+        }
+      }
+    },
+    /** Execute next action if scheduler is enabled **/
+    executeNextPendingActionOfType ({dispatch, commit, state}, type) {
+      if (state.isSchedulerRunning) {
+        // find next pending action of requested type, if any
+        let next = state.pending
+          .filter(action => action.type === type)
+          // Abandon the action after 5 failed attempts
+          .filter(action => action.attempts < 5)
+          // If candidates are available, take the first one
+          .shift()
+        if (next) {
+          // Execute it
+          dispatch('executePendingAction', next)
+        }
+      }
+    },
+    toggleScheduler ({commit, state}) {
+      commit('isSchedulerRunning', !state.isSchedulerRunning)
     }
   },
   getters: {
@@ -212,6 +280,9 @@ export default new Vuex.Store({
     },
     pending: state => {
       return state.pending
+    },
+    isSchedulerRunning: state => {
+      return state.isSchedulerRunning
     }
   }
 })

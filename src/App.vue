@@ -106,6 +106,10 @@ export default {
     color: red;
   }
 
+  .green {
+    color: green;
+  }
+
   .inbox-messages .active {
     background-color: lightblue;
   }
@@ -193,5 +197,9 @@ export default {
     font-size: small;
     font-weight: 700;
     text-decoration: none;
+  }
+
+  a.action.ripple {
+    color: white;
   }
 </style>

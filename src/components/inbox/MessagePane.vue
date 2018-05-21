@@ -183,7 +183,8 @@ export default {
         url: this.selectedComment.url,
         permlink: this.selectedComment.permlink,
         vote: this.vote,
-        created: Date.now()
+        created: Date.now(),
+        attempts: 0
       })
     },
     toCommentAction: function (body) {
@@ -194,7 +195,8 @@ export default {
         url: this.selectedComment.url,
         permlink: this.selectedComment.permlink,
         body: body,
-        created: Date.now()
+        created: Date.now(),
+        attempts: 0
       })
     },
 
