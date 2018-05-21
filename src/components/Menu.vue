@@ -7,11 +7,12 @@
         </a>
         <div class="navbar-item has-dropdown is-hoverable" v-if="user">
           <a class="navbar-link">
-            <span class="compose"><icon name="briefcase" scale="0.8"></icon> Tools</span>
+            <span class="compose"><icon name="eye" scale="1"></icon> Views</span>
           </a>
           <div class="navbar-dropdown">
             <router-link class="navbar-item" to="/">Inbox</router-link>
             <router-link class="navbar-item" to="/hello">Hello</router-link>
+            <router-link class="navbar-item" to="/pending">Pending actions</router-link>
           </div>
         </div>
         <div class="navbar-item has-dropdown is-hoverable" v-if="user">
@@ -27,16 +28,16 @@
         </div>
       </div>
       <div class="navbar-end" v-if="user">
-        <a class="navbar-item">
+        <a class="navbar-item" v-tooltip.bottom="'Remaining comments'">
           <span v-if="inbox.comments">{{ inbox.comments.length }} <icon name="inbox" scale="0.8"></icon></span>
         </a>
-        <a class="navbar-item" @click.prevent="updateVP">
+        <a class="navbar-item" @click.prevent="updateVP" v-tooltip.bottom="'Voting Power'">
           <span>{{ votingPower }} <icon name="bolt" scale="0.8"></icon></span>
         </a>
-        <a class="navbar-item">
+        <a class="navbar-item" v-tooltip.bottom="'Pending comments'">
           <span>{{ pending | countPending('comment') }} <icon name="comment-alt" scale="0.8"></icon></span>
         </a>
-        <a class="navbar-item">
+        <a class="navbar-item" v-tooltip.bottom="'Pending votes'">
           <span>{{ pending | countPending('vote') }} <icon name="chevron-circle-up" scale="0.8"></icon></span>
         </a>
         <a class="navbar-item" @click.prevent="reload">
@@ -62,8 +63,10 @@
 <script>
 import Vue from 'vue'
 import Storage from 'vue-ls'
+import VTooltip from 'v-tooltip'
 
 Vue.use(Storage)
+Vue.use(VTooltip)
 
 export default {
   name: 'top-menu',
