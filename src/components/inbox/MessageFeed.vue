@@ -13,12 +13,12 @@
           <div class="msg-subject">
             <span class="msg-subject"><strong>{{ msg.rootTitle }}</strong></span>
             <span class="msg-attachment">(${{ msg.payout }})&nbsp;
-                <a target="_blank" :href="$options.filters.steemit(msg.url)"><icon name="paperclip" scale="0.8"></icon></a>
+                <a target="_blank" :href="$options.filters.steemit(msg.url)"><icon name="external-link-alt" scale="0.8"></icon></a>
             </span>
           </div>
           <div class="msg-snippet">
-            <!-- Balise v-html : https://fr.vuejs.org/v2/guide/syntax.html#Interpretation-du-HTML -->
-            <!-- Usage des filtres : https://github.com/vuejs/vue/issues/4352 -->
+            <!-- v-html : https://fr.vuejs.org/v2/guide/syntax.html#Interpretation-du-HTML -->
+            <!-- Using filters in attributes : https://github.com/vuejs/vue/issues/4352 -->
             <p v-html="$options.filters.truncate($options.filters.markdownToHTML(msg.body), 250)"></p>
           </div>
         </div>

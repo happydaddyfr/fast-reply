@@ -22,20 +22,19 @@
           </button>
         </div>
         <div>
+          <span class="subject"><strong>{{ selectedComment.rootTitle }}</strong></span>
           <span class="msg-attachment">
               <a target="_blank" :href="$options.filters.steemit(selectedComment.url)">
-                  <icon name="paperclip" scale="0.8"></icon>
+                  <icon name="external-link-alt" scale="0.8"></icon>
               </a>
           </span>
-          <span class="subject"><strong>{{ selectedComment.rootTitle }}</strong></span>
         </div>
         <hr>
         <div class="content" v-html="$options.filters.markdownToHTML(selectedComment.body)">
         </div>
       </div>
     </div>
-    <div id="message-reply" class="control" @drop.prevent="onDrop" @dragover.prevent
-         >
+    <div id="message-reply" class="control" @drop.prevent="onDrop" @dragover.prevent>
       <div class="field">
         <label class="label">Your Vote ({{ vote }}%)</label>
         <div class="control">
