@@ -208,7 +208,7 @@ export default new Vuex.Store({
       return {
         filter: state.inbox.filter,
         selectedComment: state.inbox.selectedComment,
-        comments: filterIgnored(state.inbox.comments, state.inbox.filter, state.config.ignoreList)
+        comments: filterIgnored(state.inbox.comments, null, state.config.ignoreList)
       }
     },
     pending: state => {
