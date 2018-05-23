@@ -29,6 +29,14 @@
         </div>
       </div>
     </div>
+    <div class="credits">
+      <!-- Sticky footer variants: https://css-tricks.com/couple-takes-sticky-footer/ -->
+      <strong>
+        Made with <icon name="heart" class="red" scale="0.8"></icon> by
+        <a href="https://www.steemit.com/@roxane">@roxane</a> and
+        <a href="https://www.steemit.com/@oroger">@oroger</a>
+      </strong>
+    </div>
   </div>
 </template>
 
@@ -72,5 +80,16 @@ export default {
 </script>
 
 <style scoped>
-
+#message-feed {
+  display: flex;
+  flex-direction: column;
+}
+.inbox-messages {
+  flex: 1 0 auto;
+}
+.credits {
+  flex-shrink: 0;
+  margin-top: 15px;
+  text-align: center;
+}
 </style>

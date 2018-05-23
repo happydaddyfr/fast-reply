@@ -84,7 +84,7 @@ export default {
     display: block;
     background-color: #fff;
     border-right: 1px solid #DEDEDE;
-    padding: 40px 20px;
+    padding: 40px 20px 0px 20px;
   }
 
   .message {
