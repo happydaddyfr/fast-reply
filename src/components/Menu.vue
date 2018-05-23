@@ -3,7 +3,7 @@
     <div class="container">
       <div class="navbar-brand">
         <router-link class="navbar-item" to="/">
-          <img src="../assets/menu/fast-reply-icon.png" alt="Waiting no more">Fast-Reply
+          <img src="../assets/menu/Fast-Reply.png" alt="Waiting no more"/>
         </router-link>
         <router-link class="navbar-item" to="/" v-tooltip.bottom="'Remaining comments'">
           <span v-if="inbox.comments">{{ inbox.comments.length }} <icon name="inbox" scale="0.8"></icon></span>
