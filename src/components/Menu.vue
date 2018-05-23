@@ -8,7 +8,7 @@
         <router-link class="navbar-item" to="/" v-tooltip.bottom="'Remaining comments'">
           <span v-if="inbox.comments">{{ inbox.comments.length }} <icon name="inbox" scale="0.8"></icon></span>
         </router-link>
-        <div class="navbar-item has-dropdown is-hoverable" v-if="user">
+        <div class="navbar-item has-dropdown is-hoverable" v-if="isRouteInbox">
           <a class="navbar-link">
             <span class="compose"><icon name="filter" scale="0.8"></icon> Filter <em v-if="inbox.filter">: {{ filterCounters[inbox.filter.id] }} x {{ inbox.filter.title | truncate(50) }}</em></span>
           </a>
@@ -67,6 +67,16 @@ Vue.use(VTooltip)
 
 export default {
   name: 'top-menu',
+  data: function () {
+    return {
+      selectedRoute: this.$route.name
+    }
+  },
+  watch: {
+    '$route' (to, from) {
+      this.selectedRoute = to
+    }
+  },
   computed: {
     user () {
       return this.$store.getters.user
@@ -109,6 +119,9 @@ export default {
     },
     isSchedulerRunning () {
       return this.$store.getters.isSchedulerRunning
+    },
+    isRouteInbox () {
+      return this.selectedRoute.name === 'Inbox'
     }
   },
   filters: {
