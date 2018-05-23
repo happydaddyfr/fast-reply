@@ -15,7 +15,7 @@
         <th>{{ mentions.indexOf(mention) }}</th>
         <td>{{ mention.author }}</td>
         <td><a :href="$options.filters.steemit(mention.permlink)" target="_blank">{{ mention.title }}</a></td>
-        <td>{{ mention.category }}</td>
+        <td><a :href="'https://steemit.com/created/'+mention.category" target="_blank">{{ mention.category }}</a></td>
         <td>{{ mention.created | date }}</td>
       </tr>
       </tbody>
