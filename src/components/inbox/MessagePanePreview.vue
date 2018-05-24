@@ -22,9 +22,12 @@
       </div>
       <div>
         <span class="subject"><strong>{{ selectedComment.rootTitle }}</strong></span>
-        <span class="msg-attachment">
-          <a target="_blank" :href="$options.filters.steemit(selectedComment.url)">
-              <icon name="external-link-alt" scale="0.8"></icon>
+        <span class="float-right">
+          <a target="_blank" :href="$options.filters.steemit(selectedComment.url)" v-tooltip.bottom="'Open in Steemit'">
+            <img class="icon-tool" src="@/assets/tools/steemit.svg"/>
+          </a>
+          <a target="_blank" :href="$options.filters.busy(selectedComment.url)" v-tooltip.bottom="'Open in Busy'">
+            <img class="icon-tool" src="@/assets/tools/busy.svg"/>
           </a>
         </span>
       </div>
@@ -76,5 +79,7 @@ export default {
 </script>
 
 <style scoped>
-
+.icon-tool svg {
+  height: 0.8 em;
+}
 </style>

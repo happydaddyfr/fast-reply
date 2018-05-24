@@ -39,7 +39,8 @@
             {{ user.name }}
           </a>
           <div class="navbar-dropdown">
-            <a target="_blank" :href="$options.filters.profile(user.name)" class="navbar-item"><icon name="user" scale="0.6"></icon>&nbsp;Steemit Profile</a>
+            <a target="_blank" :href="$options.filters.profile(user.name, 'steemit')" class="navbar-item"><img class="icon-tool" src="@/assets/tools/steemit.svg"/>&nbsp;Steemit Profile</a>
+            <a target="_blank" :href="$options.filters.profile(user.name, 'busy')" class="navbar-item"><img class="icon-tool" src="@/assets/tools/busy.svg"/>&nbsp;Busy Profile</a>
             <router-link class="navbar-item" to="/mentions" v-tooltip.bottom="'See Mentions'">
               <span><icon name="at" scale="0.6"></icon>&nbsp;Mentions @{{ user.name }}</span>
             </router-link>
@@ -175,5 +176,7 @@ export default {
 </script>
 
 <style scoped>
-
+.icon-tool {
+  height: 1em;
+}
 </style>

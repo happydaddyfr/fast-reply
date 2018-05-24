@@ -130,7 +130,7 @@ export default {
     padding: 10px 0;
   }
 
-  .inbox-messages .msg-attachment {
+  .float-right {
     float: right;
   }
 

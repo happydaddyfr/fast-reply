@@ -56,9 +56,18 @@ Vue.filter('steemit', function (path) {
   return 'https://www.steemit.com' + path
 })
 
-Vue.filter('profile', function (username) {
-  // Creation d'un lien vers le profile steemit d'un utilisateur
-  return 'https://www.steemit.com/@' + username
+Vue.filter('busy', function (path) {
+  return 'https://www.busy.org' + path
+})
+
+Vue.filter('profile', function (username, platform) {
+  // Creation d'un lien vers le profile d'un utilisateur
+  switch (platform) {
+    case 'busy' :
+      return 'https://www.busy.org/@' + username
+    default :
+      return 'https://www.steemit.com/@' + username
+  }
 })
 
 Vue.filter('avatar', function (username) {

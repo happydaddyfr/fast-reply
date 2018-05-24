@@ -7,12 +7,12 @@
             <a target="_blank" :href="$options.filters.profile(msg.author)">
               <span class="steem-username">@{{ msg.author }} ({{ parseInt(msg.reputation) }})</span>
             </a>
-            <span class="msg-attachment">&nbsp;<a @click="ignoreComment(msg)"><icon name="window-close" class="red" scale="0.8"></icon></a></span>
+            <span class="float-right"><a @click="ignoreComment(msg)"><icon name="window-close" class="red" scale="0.8"></icon></a></span>
             <span class="msg-timestamp">{{ msg.created | date }}</span>
           </div>
           <div class="msg-subject">
             <span class="msg-subject"><strong>{{ msg.rootTitle }}</strong></span>
-            <span class="msg-attachment">(${{ msg.payout }})&nbsp;
+            <span class="float-right">(${{ msg.payout }})&nbsp;
                 <a target="_blank" :href="$options.filters.steemit(msg.url)"><icon name="external-link-alt" scale="0.8"></icon></a>
             </span>
           </div>
