@@ -1,13 +1,24 @@
 # Fast-Reply
 
-This web tool started as a proof of concept. 
-The goal was to find a way to :
+If like me you are spending multiple hours every day on Steem, creating 
+content but also interacting with the community, you might live with the 
+impression that you have too many comments to be able to answer them all… 
 
-- Find unanswered comments
-- Provide the ability to vote and comment in an efficient way
-- Not wait the blockchain delay between actions
+I love interacting with the Steem community ! But Finding all the comments 
+and giving a personal answer is definitely an important part of my day. 
+But it takes a lot of time… and I am always afraid to have missed one !
 
-It is now growing past those features. Stay tuned for updates !
+Fast-Reply is a web application capable of :
+
+1. Finding all the recent (< 7 days) un-answered comments made on your 
+posts and comments.
+2. Providing a simple distraction-less environment to write a response
+3. Going around the delay between action currently imposed by the Steem 
+blockchain.
+
+## Tool Annoncement
+
+- 0.1: This tool has been [first annonced on Steem on May 21, 2018](https://steemit.com/utopian-io/@roxane/fast-reply-v0-1-never-miss-to-answer-a-comment-again-and-do-it-faster-than-ever).
 
 ## Live Demo
 
@@ -15,14 +26,19 @@ A live demo is available: [HERE](http://fast-reply.surge.sh)
 
 ## Technical stuff
 
-Fast-Reply is written in Vue.js. This is a client-side only tool,
-so all you need is node and npm. For the live demo we are using 
-Surge.sh (check it out if you do not known it, it's awesome!), 
-but you can also run it locally (see here under for examples), 
-the application will then be available on 
-[http://localhost:8080](http://localhost:8080)
+Version 0.2 is a complete re-write using a new architecture used for 
+larger, team-developed projects. More precisely, the code is still written 
+using the Vue.js 2 javascript framework but we now:
 
-## Build Setup
+- Use [npm](https://www.npmjs.com/) & [Webpack](https://webpack.js.org/) to built
+- Have a [components-based](https://fr.vuejs.org/v2/guide/components.html) 
+source code
+- Added the [vue-router](https://router.vuejs.org/) and [vuex](https://vuex.vuejs.org/) plugins. 
+
+Those changes result in a more stable, easier to maintain and to evolve 
+piece of software.
+
+### Build Setup
 
 ``` bash
 # install dependencies
@@ -47,10 +63,6 @@ npm run e2e
 npm test
 ```
 
-For a detailed explanation on how things work, check out the 
-[guide](http://vuejs-templates.github.io/webpack/) and 
-[docs for vue-loader](http://vuejs.github.io/vue-loader).
-
 
 ### Security
 
@@ -60,8 +72,7 @@ Steem blockchain for basic features:
 
 - Vote
 - Comment
-- Un/Follow
-- Mute
+- Un/Follow/Mute user
 
 ## Authors
 
@@ -98,4 +109,4 @@ in the mean time any constructive feedback is welcome.
 
 ## License
 
-The software is released under MIT License. (see LICENSE)
+The software is released under MIT License.
