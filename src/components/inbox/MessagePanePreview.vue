@@ -79,7 +79,18 @@ export default {
 </script>
 
 <style scoped>
-.icon-tool svg {
-  height: 0.8 em;
+/**
+Steemit specific formatting classes
+https://steemit.com/steemit/@steemitblog/new-advanced-formatting-features
+**/
+.pull-left {
+  float: left;
+}
+.pull-right {
+  float: right;
+}
+.text-justify {
+  text-align: justify;
+  text-justify: inter-word;
 }
 </style>
