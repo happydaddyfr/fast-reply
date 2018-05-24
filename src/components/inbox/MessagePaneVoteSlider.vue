@@ -26,10 +26,10 @@ export default {
   methods: {
     // TODO regroup change vote methods
     setVote (value) {
-      this.$store.dispatch('setVotePower', value)
+      this.$store.dispatch('config', {key: 'vote', value: value})
     },
     changeVote (event) {
-      this.$store.dispatch('setVotePower', event.target.value)
+      this.$store.dispatch('config', {key: 'vote', value: event.target.value})
     }
   }
 }

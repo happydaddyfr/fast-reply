@@ -204,8 +204,8 @@ export default new Vuex.Store({
     selectComment ({dispatch, commit, state}, comment) {
       commit('selectComment', comment)
     },
-    setVotePower ({dispatch, commit, state}, value) {
-      commit('config', {name: 'vote', value: value})
+    config ({dispatch, commit, state}, {key, value}) {
+      commit('config', {name: key, value: value})
     },
     markCommentProcessed ({dispatch, commit, state}, commentId) {
       commit('ignoreComment', commentId)
