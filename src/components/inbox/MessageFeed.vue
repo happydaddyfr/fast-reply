@@ -46,8 +46,23 @@ export default {
   name: 'message-feed',
   computed: {
     messages () {
+      let config = this.$store.getters.config
       let inbox = this.$store.getters.inbox
-      return (inbox.comments) ? inbox.comments.filter(comment => (inbox.filter == null || inbox.filter.id === comment.rootId)) : []
+      if (inbox.comments) {
+        let messages = inbox.comments.filter(comment => (inbox.filter == null || inbox.filter.id === comment.rootId))
+        if (config.sort) {
+          // TODO: Add sort type and select extract function based on it
+          let extractValue = data => (config.sort.field === 'created') ? Date.parse(data) : data
+          // Define ASC / DESC sort functions
+          let asc = (a, b) => extractValue(b[config.sort.field]) - extractValue(a[config.sort.field])
+          let desc = (a, b) => extractValue(a[config.sort.field]) - extractValue(b[config.sort.field])
+          // Sort messages based on configured value
+          messages = (config.sort.inverted) ? messages.sort(asc) : messages.sort(desc)
+        }
+        return messages
+      } else {
+        return []
+      }
     },
     selectedComment () {
       return this.$store.getters.inbox.selectedComment

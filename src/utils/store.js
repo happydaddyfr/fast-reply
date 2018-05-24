@@ -24,9 +24,16 @@ var api = sc2.Initialize({
   scope: ['vote', 'comment', 'custom_json']
 })
 
+let defaultSort = {
+  field: 'created',
+  inverted: false
+}
+
 let defaultConfig = {
+  version: 0.2,
   ignoreList: {comments: [], users: []},
-  vote: 100
+  vote: 100,
+  sort: defaultSort
 }
 
 const filterIgnored = function (comments, filter, ignoreList) {

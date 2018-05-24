@@ -8,6 +8,9 @@
         <router-link class="navbar-item" to="/" v-tooltip.bottom="'Remaining comments'">
           <span v-if="inbox.comments">{{ inbox.comments.length }} <icon name="inbox" scale="0.8"></icon></span>
         </router-link>
+        <a class="navbar-item" v-tooltip.bottom="'Invert sort order'" v-if="isRouteInbox" @click.prevent="invertSort()">
+          <span><icon name="sort" scale="0.8"></icon></span>
+        </a>
         <div class="navbar-item has-dropdown is-hoverable" v-if="isRouteInbox">
           <a class="navbar-link">
             <span class="compose"><icon name="filter" scale="0.8"></icon> Filter <em v-if="inbox.filter">: {{ filterCounters[inbox.filter.id] }} x {{ inbox.filter.title | truncate(50) }}</em></span>
@@ -70,7 +73,7 @@ export default {
   name: 'top-menu',
   data: function () {
     return {
-      selectedRoute: this.$route.name
+      selectedRoute: {name: 'Inbox'}
     }
   },
   watch: {
@@ -162,6 +165,11 @@ export default {
     },
     toggleScheduler: function () {
       this.$store.dispatch('toggleScheduler')
+    },
+    invertSort: function () {
+      let currentSort = this.$store.getters.config.sort
+      let newSort = {field: currentSort.field, inverted: !currentSort.inverted}
+      this.$store.dispatch('config', {key: 'sort', value: newSort})
     },
 
     /** Use SteemConnect to sign a transfer transaction **/
