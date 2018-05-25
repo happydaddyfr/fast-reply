@@ -5,7 +5,7 @@
       <Router></Router>
     </div>
     <div v-else>
-      <Login :sc2LoginUrl="this.$store.getters.steemconnect.api.getLoginURL()"></Login>
+      <Login></Login>
     </div>
   </div>
 </template>

@@ -71,6 +71,7 @@ export default new Vuex.Store({
   mutations: {
     clearIgnoreList (state) {
       state.config.ignoreList = {comments: [], users: []}
+      Vue.ls.set(LS_CONFIG, state.config)
     },
     connect (state, result) {
       state.steemconnect.user = result.account
@@ -123,6 +124,7 @@ export default new Vuex.Store({
       }
       // Push to ignore list
       state.config.ignoreList.comments.push(commentId)
+      Vue.ls.set(LS_CONFIG, state.config)
     },
     ignoreUser (state, username) {
       // Find the comments from the given user and remove them
@@ -133,6 +135,7 @@ export default new Vuex.Store({
       }
       // Push to ignore list
       state.config.ignoreList.users.push(username)
+      Vue.ls.set(LS_CONFIG, state.config)
     },
 
     /** Managing pending actions **/

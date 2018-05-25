@@ -8,7 +8,7 @@
               <img src="../assets/login/sc2.png">
             </figure>
             <form>
-              <a class="button is-block is-info is-large" :href="sc2LoginUrl">Login</a>
+              <a class="button is-block is-info is-large" :href="this.$store.getters.steemconnect.api.getLoginURL()">Login</a>
             </form>
           </div>
           <p class="has-text-grey">
@@ -26,7 +26,6 @@
 <script>
 export default {
   name: 'Login',
-  props: ['sc2LoginUrl'],
   data () {
     return {
       // msg: 'Welcome to Your Test Vue.js App'
