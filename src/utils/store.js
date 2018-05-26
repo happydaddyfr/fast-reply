@@ -236,8 +236,9 @@ export default new Vuex.Store({
       // Filter to find first non ignored comment
       let filtered = filterIgnored(state.inbox.comments, state.inbox.filter, state.config.ignoreList)
       if (filtered.length > 0) {
+        let position = state.config.sort.inverted ? 0 : filtered.length - 1
         // Select that comment
-        commit('selectComment', filtered[0])
+        commit('selectComment', filtered[position])
       }
     },
     selectFilter ({dispatch, commit}, article) {
