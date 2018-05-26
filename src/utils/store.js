@@ -130,17 +130,6 @@ export default new Vuex.Store({
       state.config.ignoreList.comments.push(commentId)
       Vue.ls.set(LS_CONFIG, state.config)
     },
-    ignoreUser (state, username) {
-      // Find the comments from the given user and remove them
-      for (var i = 0; i < this.comments.length; i++) {
-        if (state.inbox.comments[i].from === username) {
-          state.inbox.comments.splice(i, 1)
-        }
-      }
-      // Push to ignore list
-      state.config.ignoreList.users.push(username)
-      Vue.ls.set(LS_CONFIG, state.config)
-    },
 
     /** Managing pending actions **/
     addPendingAction (state, action) {
@@ -165,6 +154,11 @@ export default new Vuex.Store({
     },
     accounts (state, {type, accounts}) {
       state.accounts[type] = accounts
+      if (type === 'ignore') {
+        // Use those names as ignore list to filter the messages
+        state.config.ignoreList.users = Array.from(accounts);
+        Vue.ls.set(LS_CONFIG, state.config)
+      }
     }
   },
   actions: {
@@ -260,8 +254,8 @@ export default new Vuex.Store({
       dispatch('selectFirstComment')
     },
     addUserToIgnore ({dispatch, commit, state}, username) {
-      commit('ignoreUser', username)
-      toast.createDialog('success', 'User ignored' + username, 2000)
+      // Blockchain has been updated, let's reload those data locally too
+      commit('loadAccounts')
     },
 
     /** Managing pending actions **/
@@ -279,7 +273,7 @@ export default new Vuex.Store({
             .catch(err => {
               // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds.', 10000)
               commit('failedAttempt', action)
-              console.log(err)
+              console.log(err, action)
             })
           break
         }
@@ -289,7 +283,7 @@ export default new Vuex.Store({
             .catch(err => {
               // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds. Please verify you have not already voted for this comment.', 10000)
               commit('failedAttempt', action)
-              console.log(err)
+              console.log(err, action)
             })
           break
         }

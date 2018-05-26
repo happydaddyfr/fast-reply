@@ -16,7 +16,7 @@
         <button @click.prevent="unfollowAccount(selectedComment.author)" class="button is-warning is-small" v-if="isFollowing(selectedComment.author)">
           Unfollow @{{ selectedComment.author }}
         </button>
-        <button @click.prevent="ignoreAccount(selectedComment.author)" class="button is-danger is-small">
+        <button @click.prevent="muteAccount(selectedComment.author)" class="button is-danger is-small">
           Mute @{{ selectedComment.author }}
         </button>
       </div>
@@ -71,7 +71,7 @@ export default {
         .then(() => toast.createDialog('success', 'You are not following ' + username + ' anymore', '3000'))
         .catch(err => toast.createDialog('error', err, 3000))
     },
-    ignoreAccount: function (username) {
+    muteAccount: function (username) {
       let app = this
       sc2Utils.ignore(this.api, this.me, username)
         .then(() => app.$store.dispatch('addUserToIgnore', username))
