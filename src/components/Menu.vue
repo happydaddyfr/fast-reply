@@ -50,6 +50,7 @@
             <a target="_blank" href="https://steemconnect.com/dashboard" class="navbar-item"><icon name="cog" scale="0.6"></icon>&nbsp;SteemConnect Dashboard</a>
             <hr class="navbar-divider">
             <a class="navbar-item" @click.prevent="reload"><icon name="sync" scale="0.6"></icon>&nbsp;Reload inbox</a>
+            <a class="navbar-item" @click.prevent="reloadAccounts"><icon name="user" scale="0.6"></icon>&nbsp;Reload accounts</a>
             <a class="navbar-item" @click.prevent="clearIgnoreList"><icon name="eraser" scale="0.6"></icon>&nbsp;Clear ignore list</a>
             <hr class="navbar-divider">
             <a class="navbar-item" :href="this.$store.getters.steemconnect.api.getLoginURL()"><icon name="exchange-alt" scale="0.6"></icon>&nbsp;Change user</a>
@@ -160,6 +161,9 @@ export default {
     },
     reload: function () {
       this.$store.dispatch('reload')
+    },
+    reloadAccounts: function () {
+      this.$store.dispatch('loadAccounts')
     },
     selectFilter: function (article) {
       this.$store.dispatch('selectFilter', article)

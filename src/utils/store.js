@@ -7,6 +7,7 @@ import VueStorage from 'vue-ls'
 import steem from 'steem'
 import sc2 from 'sc2-sdk'
 import sc2Utils from '@/utils/sc2-utils.js'
+import steemUtils from '@/utils/steem-utils.js'
 // Utils
 import toast from '@/utils/toast.js'
 
@@ -66,7 +67,12 @@ export default new Vuex.Store({
       selectedComment: null
     },
     pending: Vue.ls.get(LS_PENDING, []),
-    isSchedulerRunning: Vue.ls.get(LS_RUNNING, true)
+    isSchedulerRunning: Vue.ls.get(LS_RUNNING, true),
+    accounts: {
+      followers: new Set(),
+      following: new Set(),
+      muted: new Set()
+    }
   },
   mutations: {
     clearIgnoreList (state) {
@@ -158,6 +164,11 @@ export default new Vuex.Store({
     isSchedulerRunning (state, value) {
       state.isSchedulerRunning = value
       Vue.ls.set(LS_RUNNING, state.isSchedulerRunning)
+    },
+    accounts (state, value) {
+      console.log('before', state.accounts)
+      state.accounts = value
+      console.log('after', state.accounts)
     }
   },
   actions: {
@@ -169,6 +180,8 @@ export default new Vuex.Store({
       dispatch('reload')
       // Retrieve user VP
       dispatch('updateVP')
+      // Load account (un)follow/mute list
+      dispatch('loadAccounts')
     },
     updateVP ({ dispatch, commit, state }) {
       if (state.steemconnect.user) {
@@ -180,6 +193,13 @@ export default new Vuex.Store({
             commit('updateVP', vpow)
           }
         })
+      }
+    },
+    loadAccounts ({dispatch, commit, state}) {
+      if (state.steemconnect.user) {
+        let accounts = steemUtils.loadAccounts(state.steemconnect.user.name)
+        console.log(accounts)
+        commit('accounts', accounts)
       }
     },
     clearIgnoreList ({ dispatch, commit }) {
