@@ -269,7 +269,7 @@ export default new Vuex.Store({
     executePendingAction ({dispatch, commit, state}, action) {
       switch (action.type) {
         case 'comment': {
-          sc2Utils.comment(state.steemconnect.api, state.steemconnect.user.name, action.author, action.permlink, action.body)
+          sc2Utils.comment(state.steemconnect.api, state.steemconnect.user.name, action.author, action.permlink, action.body, action.created)
             .then(() => commit('deletePendingAction', action))
             .catch(err => {
               // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds.', 10000)
