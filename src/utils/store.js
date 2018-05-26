@@ -156,7 +156,7 @@ export default new Vuex.Store({
       state.accounts[type] = accounts
       if (type === 'ignore') {
         // Use those names as ignore list to filter the messages
-        state.config.ignoreList.users = Array.from(accounts);
+        state.config.ignoreList.users = Array.from(accounts)
         Vue.ls.set(LS_CONFIG, state.config)
       }
     }
