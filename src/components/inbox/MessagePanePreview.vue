@@ -10,10 +10,10 @@
             @{{ selectedComment.author }} ({{ parseInt(selectedComment.reputation) }})
           </a>
         </div>
-        <button @click.prevent="followAccount(selectedComment.author)" class="button is-success is-small">
+        <button @click.prevent="followAccount(selectedComment.author)" class="button is-success is-small" v-if="!isFollowing(selectedComment.author)">
           Follow @{{ selectedComment.author }}
         </button>
-        <button @click.prevent="unfollowAccount(selectedComment.author)" class="button is-warning is-small">
+        <button @click.prevent="unfollowAccount(selectedComment.author)" class="button is-warning is-small" v-if="isFollowing(selectedComment.author)">
           Unfollow @{{ selectedComment.author }}
         </button>
         <button @click.prevent="ignoreAccount(selectedComment.author)" class="button is-danger is-small">
@@ -56,6 +56,10 @@ export default {
     }
   },
   methods: {
+    isFollowing: function (username) {
+      return this.$store.getters.accounts.blog.has(username)
+    },
+
     /**  SteemConnect v2 -- Direct actions **/
     followAccount: function (username) {
       sc2Utils.follow(this.api, this.me, username)
