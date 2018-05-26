@@ -301,7 +301,7 @@ export default new Vuex.Store({
         let next = state.pending
           .filter(action => action.type === type)
           // Abandon the action after 5 failed attempts
-          .filter(action => action.attempts < 5)
+          .filter(action => action.attempts < 3)
           // If candidates are available, take the first one
           .shift()
         if (next) {
