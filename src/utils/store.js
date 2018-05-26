@@ -7,7 +7,6 @@ import VueStorage from 'vue-ls'
 import steem from 'steem'
 import sc2 from 'sc2-sdk'
 import sc2Utils from '@/utils/sc2-utils.js'
-import steemUtils from '@/utils/steem-utils.js'
 // Utils
 import toast from '@/utils/toast.js'
 
@@ -69,9 +68,8 @@ export default new Vuex.Store({
     pending: Vue.ls.get(LS_PENDING, []),
     isSchedulerRunning: Vue.ls.get(LS_RUNNING, true),
     accounts: {
-      followers: new Set(),
-      following: new Set(),
-      muted: new Set()
+      blog: new Set(),
+      ignore: new Set()
     }
   },
   mutations: {
@@ -165,10 +163,8 @@ export default new Vuex.Store({
       state.isSchedulerRunning = value
       Vue.ls.set(LS_RUNNING, state.isSchedulerRunning)
     },
-    accounts (state, value) {
-      console.log('before', state.accounts)
-      state.accounts = value
-      console.log('after', state.accounts)
+    accounts (state, {type, accounts}) {
+      state.accounts[type] = accounts
     }
   },
   actions: {
@@ -197,9 +193,31 @@ export default new Vuex.Store({
     },
     loadAccounts ({dispatch, commit, state}) {
       if (state.steemconnect.user) {
-        let accounts = steemUtils.loadAccounts(state.steemconnect.user.name)
-        console.log(accounts)
-        commit('accounts', accounts)
+        const chunkSize = 100
+        // Recursive function to go through all the following by chunk
+        let loadFollowing = function (username, type, pos, accounts) {
+          steem.api.getFollowing(username, pos, type, chunkSize, function (err, result) {
+            if (!err) {
+              for (let follows of result) {
+                if (follows.what.length > 0 && follows.what[0] === type) {
+                  accounts.add(follows.following)
+                }
+              }
+              // Check if there is more to process
+              if (result.length === chunkSize) {
+                loadFollowing(username, type, result[result.length - 1].following, accounts)
+              } else {
+                commit('accounts', {type: type, accounts: accounts})
+              }
+            } else {
+              console.log(err)
+              toast.createDialog('error', 'Could not load related accounts: ' + err, 2000)
+            }
+          })
+        }
+        // Start fetching the account data
+        loadFollowing(state.steemconnect.user.name, 'blog', 0, new Set())
+        loadFollowing(state.steemconnect.user.name, 'ignore', 0, new Set())
       }
     },
     clearIgnoreList ({ dispatch, commit }) {
@@ -320,6 +338,9 @@ export default new Vuex.Store({
     },
     pending: state => {
       return state.pending
+    },
+    accounts: state => {
+      return state.accounts
     },
     isSchedulerRunning: state => {
       return state.isSchedulerRunning
