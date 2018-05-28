@@ -165,7 +165,10 @@ export default new Vuex.Store({
     async connect ({ dispatch, commit, state }, token) {
       // wait for async call to resolve using await, then use result
       state.steemconnect.api.setAccessToken(token)
-      commit('connect', await state.steemconnect.api.me())
+      commit('connect',
+        await state.steemconnect.api.me()
+          .catch(err => console.log(err))
+      )
       // Force reload on login
       dispatch('reload')
       // Retrieve user VP
