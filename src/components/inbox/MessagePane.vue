@@ -151,7 +151,7 @@ export default {
 
     /** Add pending actions - for Scheduler **/
     toVoteAction: function () {
-      this.$store.dispatch('addPendingAction', {
+      let vote = {
         type: 'vote',
         author: this.selectedComment.author,
         title: this.selectedComment.rootTitle,
@@ -160,10 +160,11 @@ export default {
         vote: this.vote,
         created: Date.now(),
         attempts: 0
-      })
+      }
+      this.$store.dispatch('addPendingAction', vote)
     },
     toCommentAction: function (body) {
-      this.$store.dispatch('addPendingAction', {
+      let comment = {
         type: 'comment',
         author: this.selectedComment.author,
         title: this.selectedComment.rootTitle,
@@ -172,7 +173,8 @@ export default {
         body: body,
         created: Date.now(),
         attempts: 0
-      })
+      }
+      this.$store.dispatch('addPendingAction', comment)
     }
   }
 }

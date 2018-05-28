@@ -275,9 +275,9 @@ export default new Vuex.Store({
           sc2Utils.comment(state.steemconnect.api, state.steemconnect.user.name, action.author, action.permlink, action.body, action.created)
             .then(() => commit('deletePendingAction', action))
             .catch(err => {
-              // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds.', 10000)
+              console.log('Error SC2 during comment: ', err.error_description)
+              console.log('Failed action: ', action)
               commit('failedAttempt', action)
-              console.log(err, action)
             })
           break
         }
@@ -285,9 +285,15 @@ export default new Vuex.Store({
           sc2Utils.vote(state.steemconnect.api, state.steemconnect.user.name, action.author, action.permlink, action.vote)
             .then(() => commit('deletePendingAction', action))
             .catch(err => {
-              // toast.createDialog('error', 'Error while executing action: ' + err + '. Retrying in a few seconds. Please verify you have not already voted for this comment.', 10000)
               commit('failedAttempt', action)
-              console.log(err, action)
+              if (err.error_description === 'itr->vote_percent != o.weight: You have already voted in a similar way.') {
+                // already been processed, remove this action from pending
+                commit('deletePendingAction', action)
+              } else {
+                console.log('Failed action: ', action)
+                console.log('Error SC2 during vote: ', err.error_description)
+                commit('failedAttempt', action)
+              }
             })
           break
         }
